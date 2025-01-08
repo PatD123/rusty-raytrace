@@ -7,20 +7,41 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
+    // A zero vector
     pub const ZERO: Vec3 = Vec3 {
         x: 0.0,
         y: 0.0,
         z: 0.0,
     }; 
 
+    // A vector of ones
     pub const ONE: Vec3 = Vec3 {
         x: 1.0,
         y: 1.0,
         z: 1.0,
     };
 
-    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
-        Vec3 {x: x, y: y, z: z}
+    // Creating a new vector
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Self {x: x, y: y, z: z}
+    }
+
+    // Magnitude of vector
+    pub fn length(&self) -> f32 {
+        self.length_squared().sqrt()
+    }
+
+    pub fn length_squared(&self) -> f32 {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn unit_vec(&self) -> Self {
+        let len = self.length();
+        Self {
+            x: self.x / len,
+            y: self.y / len,
+            z: self.z / len,
+        }
     }
 }
 
@@ -29,4 +50,22 @@ impl fmt::Display for Vec3 {
         write!(f, "({}, {}, {})", self.x, self.y, self.z)
     }
 }
+
+
+
+pub fn dot(u: &Vec3, v: &Vec3) -> f32 {
+    u.x * v.x + u.y * v.y + u.z * v.z
+}
+
+pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
+    Vec3 {
+        x: u.y * v.z - u.z * v.y,
+        y: u.z * v.x - u.x * v.z,
+        z: u.x * v.y - u.y * v.x,
+    }
+}   
+
+
+
+
 
