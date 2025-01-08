@@ -1,11 +1,26 @@
-mod vec3;
+use std::fs::File;
+use std::io::Write;
 
-use vec3::Vec3;
+use raytracer::Vec3;
+use raytracer::write_color;
 
 fn main() {
-    let v = Vec3::new(1.0, 1.0, 1.0);
+    let img_width = 256.0;
+    let img_height = 256.0;
+    let mut f = File::create("examples/output.ppm").expect("Couldn't create file!");
 
-    println!("{}", v);
+    let buf = ["P3\n", &img_width.to_string(), &format!(" {}\n", img_height.to_string()), "255\n"];
+    for s in buf.iter() {
+        f.write(s.as_bytes());
+    }
+
+    for i in 0..img_height as i32 {
+        println!("Scanlines remaining: {}", (img_height as i32 - i));
+        for j in 0..img_width as i32{
+            let pixel_color = Vec3::new(j as f32 / (img_width - 1.0), i as f32 / (img_height - 1.0), 0.0);
+            write_color(&f, &pixel_color);
+        }
+    }
 }
 
 #[cfg(test)]
