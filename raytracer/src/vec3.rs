@@ -1,5 +1,7 @@
 use std::fmt;
+use std::ops;
 
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -45,13 +47,55 @@ impl Vec3 {
     }
 }
 
+// TODO
+// Vec + Vec
+// Vec * / Num
+// New Vec = Vec + - * / Vec
+// New Vec = Vec * / Num
+
+impl ops::AddAssign<Vec3> for Vec3 {
+    fn add_assign(&mut self, rhs: Vec3) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
+
+impl ops::Add<Vec3> for Vec3 {
+    type Output = Vec3;
+    fn add(self, rhs: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl ops::SubAssign<Vec3> for Vec3 {
+    fn sub_assign(&mut self, rhs: Vec3) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+        self.z -= rhs.z;
+    }
+}
+
+impl ops::Sub<Vec3> for Vec3 {
+    type Output = Vec3;
+    fn sub(self, rhs: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
 impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {}, {})", self.x, self.y, self.z)
     }
 }
-
-
 
 pub fn dot(u: &Vec3, v: &Vec3) -> f32 {
     u.x * v.x + u.y * v.y + u.z * v.z
