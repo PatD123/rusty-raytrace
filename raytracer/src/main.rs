@@ -31,7 +31,7 @@ mod tests {
 
         assert_eq!(vec3::dot(&u, &v), 14.0);
 
-        assert_eq!(vec3::cross(&u, &v).y, 6.0);
+        assert_eq!(vec3::cross(&u, &v), Vec3::new(-3.0, 6.0, -3.0));
     }
 
     #[test]
@@ -60,5 +60,26 @@ mod tests {
         
         v -= u - p;
         assert_eq!(v, Vec3::new(3.0, 2.0, 1.0));
+    }
+
+    #[test]
+    fn testing_muls() {
+        let u = Vec3::new(0.0, 1.0, 2.0);
+        let v = Vec3::new(0.0, 1.0, 2.0);
+
+        let mut p = u * v * 2.0;
+        assert_eq!(p, Vec3::new(0.0, 2.0, 8.0));
+
+        p *= 2.0;
+        assert_eq!(p, Vec3::new(0.0, 4.0, 16.0));   
+    }
+
+    #[test]
+    fn testing_divs() {
+        let mut u = Vec3::new(3.0, 4.0, 5.0);
+        let v = Vec3::ONE;
+
+        u /= 2.0;
+        assert_eq!(u, Vec3::new(1.5, 2.0, 2.5));  
     }
 }

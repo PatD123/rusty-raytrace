@@ -50,7 +50,7 @@ impl Vec3 {
 // TODO
 // Vec + Vec
 // Vec * / Num
-// New Vec = Vec + - * / Vec
+// New Vec = Vec + - * Vec
 // New Vec = Vec * / Num
 
 impl ops::AddAssign<Vec3> for Vec3 {
@@ -87,6 +87,55 @@ impl ops::Sub<Vec3> for Vec3 {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
             z: self.z - rhs.z,
+        }
+    }
+}
+
+impl ops::MulAssign<f32> for Vec3 {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
+    }
+}
+
+impl ops::Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
+    }
+}
+
+impl ops::Mul<f32> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, rhs: f32) -> Vec3 {
+        Vec3 {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+}
+
+impl ops::DivAssign<f32> for Vec3 {
+    fn div_assign(&mut self, rhs: f32) {
+        self.x /= rhs;
+        self.y /= rhs;
+        self.z /= rhs;
+    }
+}
+
+impl ops::Div<f32> for Vec3 {
+    type Output = Vec3;
+    fn div(self, rhs: f32) -> Vec3 {
+        Vec3 {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
         }
     }
 }
