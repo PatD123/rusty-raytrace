@@ -82,4 +82,10 @@ mod tests {
         u /= 2.0;
         assert_eq!(u, Vec3::new(1.5, 2.0, 2.5));  
     }
+
+    #[test]
+    fn testing_unary() {
+        let u = Vec3::new(3.0, 4.0, 5.0);
+        assert_eq!(-u, Vec3::new(-3.0, -4.0, -5.0));  
+    }
 }

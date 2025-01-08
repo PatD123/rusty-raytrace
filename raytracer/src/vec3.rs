@@ -47,12 +47,7 @@ impl Vec3 {
     }
 }
 
-// TODO
-// Vec + Vec
-// Vec * / Num
-// New Vec = Vec + - * Vec
-// New Vec = Vec * / Num
-
+// Addition
 impl ops::AddAssign<Vec3> for Vec3 {
     fn add_assign(&mut self, rhs: Vec3) {
         self.x += rhs.x;
@@ -60,7 +55,6 @@ impl ops::AddAssign<Vec3> for Vec3 {
         self.z += rhs.z;
     }
 }
-
 impl ops::Add<Vec3> for Vec3 {
     type Output = Vec3;
     fn add(self, rhs: Vec3) -> Vec3 {
@@ -72,6 +66,7 @@ impl ops::Add<Vec3> for Vec3 {
     }
 }
 
+// Subtraction
 impl ops::SubAssign<Vec3> for Vec3 {
     fn sub_assign(&mut self, rhs: Vec3) {
         self.x -= rhs.x;
@@ -79,7 +74,6 @@ impl ops::SubAssign<Vec3> for Vec3 {
         self.z -= rhs.z;
     }
 }
-
 impl ops::Sub<Vec3> for Vec3 {
     type Output = Vec3;
     fn sub(self, rhs: Vec3) -> Vec3 {
@@ -91,6 +85,7 @@ impl ops::Sub<Vec3> for Vec3 {
     }
 }
 
+// Multiplication
 impl ops::MulAssign<f32> for Vec3 {
     fn mul_assign(&mut self, rhs: f32) {
         self.x *= rhs;
@@ -98,7 +93,6 @@ impl ops::MulAssign<f32> for Vec3 {
         self.z *= rhs;
     }
 }
-
 impl ops::Mul<Vec3> for Vec3 {
     type Output = Vec3;
     fn mul(self, rhs: Vec3) -> Vec3 {
@@ -109,7 +103,6 @@ impl ops::Mul<Vec3> for Vec3 {
         }
     }
 }
-
 impl ops::Mul<f32> for Vec3 {
     type Output = Vec3;
     fn mul(self, rhs: f32) -> Vec3 {
@@ -121,6 +114,7 @@ impl ops::Mul<f32> for Vec3 {
     }
 }
 
+// Division
 impl ops::DivAssign<f32> for Vec3 {
     fn div_assign(&mut self, rhs: f32) {
         self.x /= rhs;
@@ -128,7 +122,6 @@ impl ops::DivAssign<f32> for Vec3 {
         self.z /= rhs;
     }
 }
-
 impl ops::Div<f32> for Vec3 {
     type Output = Vec3;
     fn div(self, rhs: f32) -> Vec3 {
@@ -140,16 +133,31 @@ impl ops::Div<f32> for Vec3 {
     }
 }
 
+// Unary
+impl ops::Neg for Vec3 {
+    type Output = Vec3;
+    fn neg(self) -> Vec3 {
+        Vec3{
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+    }
+}
+
+// Display
 impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {}, {})", self.x, self.y, self.z)
     }
 }
 
+// Dot product
 pub fn dot(u: &Vec3, v: &Vec3) -> f32 {
     u.x * v.x + u.y * v.y + u.z * v.z
 }
 
+// Cross product
 pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
     Vec3 {
         x: u.y * v.z - u.z * v.y,
