@@ -20,3 +20,9 @@ pub fn write_color(mut f: &File, color: &Vec3) {
     f.write(gbyte.to_string().as_bytes()); f.write(" ".as_bytes());
     f.write(bbyte.to_string().as_bytes()); f.write("\n".as_bytes());
 }
+
+pub fn ray_color(ray: &Ray) -> Vec3 {
+    let unit_dir = ray.direction().unit_vec();
+    let a = 0.5 * (unit_dir.y + 1.0);
+    Vec3::new(1.0, 1.0, 1.0) * (1.0 - a) + Vec3::new(0.5, 0.7, 1.0) * a
+}
