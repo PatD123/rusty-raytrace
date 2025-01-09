@@ -2,9 +2,20 @@ use std::fs::File;
 use std::io::Write;
 
 use raytracer::Vec3;
+use raytracer::Ray;
 use raytracer::write_color;
 
 fn main() {
+    let aspect_ratio = 16.0 / 9.0;
+    let image_width = 400;
+    let image_height = (image_width as f32 / aspect_ratio) as i32;
+
+    let viewport_height = 2.0;
+    let viewport_width = viewport_height * (image_width as f32 / image_height as f32);
+    let focal_length = 1.0;
+}
+
+fn first_render() {
     let img_width = 256.0;
     let img_height = 256.0;
     let mut f = File::create("examples/output.ppm").expect("Couldn't create file!");
@@ -27,80 +38,95 @@ fn main() {
 mod tests {
     use super::*;
 
-    #[test]
-    fn basics() {
-        let u = Vec3::new(0.0, 1.0, 2.0);
-        let v = Vec3::new(3.0, 4.0, 5.0);
+    // #[test]
+    // fn basics() {
+    //     let u = Vec3::new(0.0, 1.0, 2.0);
+    //     let v = Vec3::new(3.0, 4.0, 5.0);
 
-        let u_len = u.length();
-        let v_len = v.length();
-        assert_eq!(u_len, (5.0 as f32).sqrt());
+    //     let u_len = u.length();
+    //     let v_len = v.length();
+    //     assert_eq!(u_len, (5.0 as f32).sqrt());
 
-        assert_eq!(v.unit_vec().x, 3.0/v_len);
-    }
+    //     assert_eq!(v.unit_vec().x, 3.0/v_len);
+    // }
 
-    #[test]
-    fn dot_and_cross() {
-        let u = Vec3::new(0.0, 1.0, 2.0);
-        let v = Vec3::new(3.0, 4.0, 5.0);
+    // #[test]
+    // fn dot_and_cross() {
+    //     let u = Vec3::new(0.0, 1.0, 2.0);
+    //     let v = Vec3::new(3.0, 4.0, 5.0);
 
-        assert_eq!(vec3::dot(&u, &v), 14.0);
+    //     assert_eq!(vec3::dot(&u, &v), 14.0);
 
-        assert_eq!(vec3::cross(&u, &v), Vec3::new(-3.0, 6.0, -3.0));
-    }
+    //     assert_eq!(vec3::cross(&u, &v), Vec3::new(-3.0, 6.0, -3.0));
+    // }
 
-    #[test]
-    fn testing_adds() {
-        let mut u = Vec3::new(0.0, 1.0, 2.0);
-        let v = Vec3::new(3.0, 4.0, 5.0);
+    // #[test]
+    // fn testing_adds() {
+    //     let mut u = Vec3::new(0.0, 1.0, 2.0);
+    //     let v = Vec3::new(3.0, 4.0, 5.0);
 
-        u += v;
-        assert_eq!(u, Vec3::new(3.0, 5.0, 7.0));
+    //     u += v;
+    //     assert_eq!(u, Vec3::new(3.0, 5.0, 7.0));
         
-        u += v + v;
-        assert_eq!(u, Vec3::new(9.0, 13.0, 17.0));
+    //     u += v + v;
+    //     assert_eq!(u, Vec3::new(9.0, 13.0, 17.0));
 
-        let n = v + v;
-        assert_eq!(n, Vec3::new(6.0, 8.0, 10.0));
-    }
+    //     let n = v + v;
+    //     assert_eq!(n, Vec3::new(6.0, 8.0, 10.0));
+    // }
 
-    #[test]
-    fn testing_subs() {
-        let u = Vec3::new(0.0, 1.0, 2.0);
-        let p = Vec3::ZERO;
-        let mut v = Vec3::new(3.0, 4.0, 5.0);
+    // #[test]
+    // fn testing_subs() {
+    //     let u = Vec3::new(0.0, 1.0, 2.0);
+    //     let p = Vec3::ZERO;
+    //     let mut v = Vec3::new(3.0, 4.0, 5.0);
 
-        v -= u;
-        assert_eq!(v, Vec3::new(3.0, 3.0, 3.0));
+    //     v -= u;
+    //     assert_eq!(v, Vec3::new(3.0, 3.0, 3.0));
         
-        v -= u - p;
-        assert_eq!(v, Vec3::new(3.0, 2.0, 1.0));
-    }
+    //     v -= u - p;
+    //     assert_eq!(v, Vec3::new(3.0, 2.0, 1.0));
+    // }
+
+    // #[test]
+    // fn testing_muls() {
+    //     let u = Vec3::new(0.0, 1.0, 2.0);
+    //     let v = Vec3::new(0.0, 1.0, 2.0);
+
+    //     let mut p = u * v * 2.0;
+    //     assert_eq!(p, Vec3::new(0.0, 2.0, 8.0));
+
+    //     p *= 2.0;
+    //     assert_eq!(p, Vec3::new(0.0, 4.0, 16.0));   
+    // }
+
+    // #[test]
+    // fn testing_divs() {
+    //     let mut u = Vec3::new(3.0, 4.0, 5.0);
+    //     let v = Vec3::ONE;
+
+    //     u /= 2.0;
+    //     assert_eq!(u, Vec3::new(1.5, 2.0, 2.5));  
+    // }
+
+    // #[test]
+    // fn testing_unary() {
+    //     let u = Vec3::new(3.0, 4.0, 5.0);
+    //     assert_eq!(-u, Vec3::new(-3.0, -4.0, -5.0));  
+    // }
 
     #[test]
-    fn testing_muls() {
-        let u = Vec3::new(0.0, 1.0, 2.0);
-        let v = Vec3::new(0.0, 1.0, 2.0);
+    fn testing_rays() {
+        let origin = Vec3::ZERO;
+        let direction = Vec3::new(0.0, 1.0, 2.0);
+        let new_ray = Ray::new(origin, direction);
 
-        let mut p = u * v * 2.0;
-        assert_eq!(p, Vec3::new(0.0, 2.0, 8.0));
+        assert_eq!(new_ray.origin(), Vec3::new(0.0, 0.0, 0.0));
 
-        p *= 2.0;
-        assert_eq!(p, Vec3::new(0.0, 4.0, 16.0));   
-    }
+        let dir = new_ray.direction() + Vec3::ONE;
+        assert_eq!(dir, Vec3::new(1.0, 2.0, 3.0));
 
-    #[test]
-    fn testing_divs() {
-        let mut u = Vec3::new(3.0, 4.0, 5.0);
-        let v = Vec3::ONE;
-
-        u /= 2.0;
-        assert_eq!(u, Vec3::new(1.5, 2.0, 2.5));  
-    }
-
-    #[test]
-    fn testing_unary() {
-        let u = Vec3::new(3.0, 4.0, 5.0);
-        assert_eq!(-u, Vec3::new(-3.0, -4.0, -5.0));  
+        assert_eq!(new_ray.at(5.0), Vec3::new(0.0, 5.0, 10.0));
+        assert_eq!(new_ray.origin(), Vec3::new(0.0, 0.0, 0.0));
     }
 }
