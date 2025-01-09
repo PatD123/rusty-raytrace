@@ -6,3 +6,5 @@ Rust but also learn a bit more about graphics programming.
 I provide basic vector operation implementations, really those that I needed to follow along with
 the [Raytracing In A Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) article.
 
+## Rays
+I also provide a basic ray implementation, of course used in raytracing.
