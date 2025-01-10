@@ -153,7 +153,7 @@ impl fmt::Display for Vec3 {
 }
 
 // Dot product
-pub fn dot(u: &Vec3, v: &Vec3) -> f32 {
+pub fn dot(u: Vec3, v: Vec3) -> f32 {
     u.x * v.x + u.y * v.y + u.z * v.z
 }
 

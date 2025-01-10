@@ -1,9 +1,10 @@
 use std::fs::File;
 use std::io::Write;
 
+use raytracer;
+use raytracer::vec3;
 use raytracer::Vec3;
 use raytracer::Ray;
-use raytracer::write_color;
 
 fn main() {
     // About image
@@ -71,7 +72,8 @@ mod tests {
     //     let u = Vec3::new(0.0, 1.0, 2.0);
     //     let v = Vec3::new(3.0, 4.0, 5.0);
 
-    //     assert_eq!(vec3::dot(&u, &v), 14.0);
+    //     assert_eq!(vec3::dot(u, v), 14.0);
+    //     assert_eq!(vec3::dot(u, v), 14.0);
 
     //     assert_eq!(vec3::cross(&u, &v), Vec3::new(-3.0, 6.0, -3.0));
     // }
