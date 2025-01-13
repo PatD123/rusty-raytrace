@@ -1,10 +1,14 @@
 use std::fs::File;
 use std::io::Write;
 
-use raytracer;
 use raytracer::vec3;
-use raytracer::Vec3;
-use raytracer::Ray;
+use raytracer::ray;
+use raytracer::shapes;
+
+use vec3::Vec3;
+use ray::Ray;
+use shapes::World;
+use shapes::Sphere;
 
 fn main() {
     // About image
@@ -38,6 +42,10 @@ fn main() {
         f.write(s.as_bytes());
     }
 
+    let mut world = World::new();
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)));
+
     for i in 0..image_height {
         println!("Scanlines remaining: {}", (image_height as i32 - i));
         for j in 0..image_width {
@@ -45,7 +53,7 @@ fn main() {
             let ray_dir = pixel_center - camera;
             let r = Ray::new(camera, ray_dir);
 
-            let pixel_color = raytracer::ray_color(&r);
+            let pixel_color = raytracer::ray_color(&r, &world);
             raytracer::write_color(&f, &pixel_color);
         }
     }

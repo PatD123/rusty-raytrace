@@ -1,11 +1,17 @@
 pub mod vec3;
 pub mod ray;
+pub mod shapes;
 
-pub use vec3::Vec3;
-pub use ray::Ray;
+use vec3::Vec3;
+use ray::Ray;
+use shapes::World;
+use shapes::HitRec;
+use shapes::Hittable;
 
 use std::fs::File;
 use std::io::Write;
+
+pub const INFINITY: f32 = f32::INFINITY;
 
 pub fn write_color(mut f: &File, color: &Vec3) {
     let r = color.x;
@@ -21,12 +27,10 @@ pub fn write_color(mut f: &File, color: &Vec3) {
     f.write(bbyte.to_string().as_bytes()); f.write("\n".as_bytes());
 }
 
-pub fn ray_color(ray: &Ray) -> Vec3 {
-    let sphere = Vec3::new(0.0, 0.0, -1.0);
-    let t = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, &ray);
-    if t > 0.0 {
-        let n = (ray.at(t) - sphere).unit_vec();
-        return Vec3::new(n.x + 1.0, n.y + 1.0, n.z + 1.0) * 0.5;
+pub fn ray_color(ray: &Ray, world: &World) -> Vec3 {
+    let mut hit_rec = HitRec::new();
+    if world.hit(ray, 0.0, INFINITY, &mut hit_rec) {
+        return (hit_rec.normal + Vec3::new(1.0, 1.0, 1.0)) * 0.5;
     }
 
     let unit_dir = ray.direction().unit_vec();
