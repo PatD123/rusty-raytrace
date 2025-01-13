@@ -53,6 +53,10 @@ fn main() {
 
 // TODO
 // Abstraction for hittable trait using Rust
+// Make all shapes hittable.
+// Make a Hittable list World to store hittable objects
+// Figure out normals.
+// Interval class.
 
 #[cfg(test)]
 mod tests {
