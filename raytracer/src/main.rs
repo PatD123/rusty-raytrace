@@ -43,8 +43,8 @@ fn main() {
     }
 
     let mut world = World::new();
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, Vec3::new(0.0, 0.0, 1.0))));
 
     for i in 0..image_height {
         println!("Scanlines remaining: {}", (image_height as i32 - i));

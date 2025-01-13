@@ -14,6 +14,7 @@ pub struct HitRec {
     pub normal: Vec3,
     pub t: f32,
     pub front_face: bool,
+    pub color: Vec3,
 }
 
 impl HitRec {
@@ -23,6 +24,7 @@ impl HitRec {
             normal: Vec3::ZERO,
             t: 0.0,
             front_face: true,
+            color: Vec3::ZERO,
         }
     }
 
@@ -79,11 +81,11 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(sphere_center: Vec3, radius: f32) -> Self {
+    pub fn new(sphere_center: Vec3, radius: f32, color: Vec3) -> Self {
         Self {
             center: sphere_center,
             radius: radius,
-            color: Vec3::new(1.0, 1.0, 1.0),
+            color: color,
         }
     }
 }
@@ -110,6 +112,7 @@ impl Hittable for Sphere {
 
         rec.t = root;
         rec.hit_p = r.at(root);
+        rec.color = self.color;
         let outward_normal = (rec.hit_p - self.center) / self.radius;
         rec.set_face_normal(r, outward_normal);
 
