@@ -158,7 +158,7 @@ pub fn dot(u: Vec3, v: Vec3) -> f32 {
 }
 
 // Cross product
-pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
+pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
     Vec3 {
         x: u.y * v.z - u.z * v.y,
         y: u.z * v.x - u.x * v.z,

@@ -51,6 +51,9 @@ fn main() {
     }
 }
 
+// TODO
+// Abstraction for hittable trait using Rust
+
 #[cfg(test)]
 mod tests {
     use super::*;

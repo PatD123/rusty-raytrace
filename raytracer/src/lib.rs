@@ -22,8 +22,11 @@ pub fn write_color(mut f: &File, color: &Vec3) {
 }
 
 pub fn ray_color(ray: &Ray) -> Vec3 {
-    if hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, &ray) {
-        return Vec3::new(1.0, 0.0, 0.0);
+    let sphere = Vec3::new(0.0, 0.0, -1.0);
+    let t = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, &ray);
+    if t > 0.0 {
+        let n = (ray.at(t) - sphere).unit_vec();
+        return Vec3::new(n.x + 1.0, n.y + 1.0, n.z + 1.0) * 0.5;
     }
 
     let unit_dir = ray.direction().unit_vec();
@@ -31,12 +34,16 @@ pub fn ray_color(ray: &Ray) -> Vec3 {
     Vec3::new(1.0, 1.0, 1.0) * (1.0 - a) + Vec3::new(0.5, 0.7, 1.0) * a
 }
 
-pub fn hit_sphere(sphere_center: &Vec3, radius: f32, r: &Ray) -> bool{
+pub fn hit_sphere(sphere_center: &Vec3, radius: f32, r: &Ray) -> f32{
     let oc = *sphere_center - r.origin();
     let a = vec3::dot(r.direction(), r.direction());
     let b = -2.0 * vec3::dot(r.direction(), oc);
     let c = vec3::dot(oc, oc) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
     
-    discriminant >= 0.0
+    if discriminant < 0.0 {
+        return -1.0;
+    } else {
+        return (-b - discriminant.sqrt()) / (2.0 * a);
+    }
 }
