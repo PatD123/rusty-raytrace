@@ -9,54 +9,18 @@ use vec3::Vec3;
 use ray::Ray;
 use shapes::World;
 use shapes::Sphere;
+use raytracer::Camera;
 
 fn main() {
-    // About image
-    let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
-    let image_height = (image_width as f32 / aspect_ratio) as i32;
-
-    // About camera: Camera orthogonal to viewport and points
-    // directly in the middle of the viewport.
-    let viewport_height = 2.0;
-    let viewport_width = viewport_height * (image_width as f32 / image_height as f32);
-    let focal_length = 1.0;
-    let camera = Vec3::ZERO;
-
-    // About viewport
-    let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-    let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
-
-    // About individual pixel
-    let pixel_delta_u = viewport_u / (image_width as f32);
-    let pixel_delta_v = viewport_v / (image_height as f32);
-
-    // Calculate the location of the upper left pixel.
-    let viewport_upper_left = camera - viewport_u / 2.0 - viewport_v / 2.0 - Vec3::new(0.0, 0.0, focal_length);
-    let pixel_upper_left = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5;
-
-    // Render
-    let mut f = File::create("examples/output.ppm").expect("Couldn't create file!");
-    let buf = ["P3\n", &image_width.to_string(), &format!(" {}\n", image_height.to_string()), "255\n"];
-    for s in buf.iter() {
-        f.write(s.as_bytes());
-    }
+    let mut camera = Camera::new();
+    camera.aspect_ratio = 16.0 / 9.0;
+    camera.image_width = 400;
 
     let mut world = World::new();
     world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
     world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, Vec3::new(0.0, 0.0, 1.0))));
 
-    for i in 0..image_height {
-        println!("Scanlines remaining: {}", (image_height as i32 - i));
-        for j in 0..image_width {
-            let pixel_center = pixel_upper_left + (pixel_delta_u * j as f32) + (pixel_delta_v * i as f32);
-            let ray_dir = pixel_center - camera;
-            let r = Ray::new(camera, ray_dir);
-
-            let pixel_color = raytracer::ray_color(&r, &world);
-            raytracer::write_color(&f, &pixel_color);
-        }
-    }
+    camera.render(&world);
 }
 
 // TODO
