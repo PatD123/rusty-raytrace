@@ -28,6 +28,7 @@ impl HitRec {
         }
     }
 
+    // Determines if ray hits from front-face or back-face.
     pub fn set_face_normal(&mut self, r: &Ray, outward_normal: Vec3) {
         self.front_face = vec3::dot(r.direction(), outward_normal) < 0.0;
         if self.front_face {
@@ -62,10 +63,13 @@ impl Hittable for World {
         let mut flag = false;
         let mut closest = tmax;
         
+        // Loop through all world objects
         for obj in &self.objs {
+
+            // Have each object be hit (if it can get hit by ray)
             if obj.hit(r, tmin, closest, &mut temp_rec) {
                 flag = true;
-                closest = temp_rec.t;
+                closest = temp_rec.t; // Keep track of objects of least depth.
                 *hit_rec = temp_rec;
             }
         }
@@ -102,6 +106,7 @@ impl Hittable for Sphere {
             return false;
         }
 
+        // Determining valid t roots from sphere intersection
         let mut root = (-b - discriminant.sqrt()) / (2.0 * a);
         if root < tmin || root > tmax {
             root = (-b + discriminant.sqrt()) / (2.0 * a);
@@ -110,6 +115,7 @@ impl Hittable for Sphere {
             }
         }
 
+        // Recording it in the HitRecord.
         rec.t = root;
         rec.hit_p = r.at(root);
         rec.color = self.color;
@@ -117,5 +123,27 @@ impl Hittable for Sphere {
         rec.set_face_normal(r, outward_normal);
 
         true
+    }
+}
+
+pub struct Triangle {
+    pub a: Vec3,
+    pub b: Vec3, 
+    pub c: Vec3,
+}
+
+impl Triangle {
+    pub fn new(a: Vec3, b: Vec3, c: Vec3) -> Self {
+        Self {
+            a: a,
+            b: b,
+            c: c,
+        }
+    }
+}
+
+impl Hittable for Triangle {
+    fn hit(&self, r: &Ray, tmin: f32, tmax: f32, rec: &mut HitRec) -> bool {
+        
     }
 }

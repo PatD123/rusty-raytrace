@@ -15,6 +15,10 @@ fn main() {
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
     camera.image_width = 400;
+    // Longer focal length, more magnification. If greater focal length,
+    // the closer the sensor is to where everything converges, so it captures
+    // a lot more.
+    camera.focal_length = 0.5;
 
     let mut world = World::new();
     world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));

@@ -16,13 +16,13 @@ pub const INFINITY: f32 = f32::INFINITY;
 pub struct Camera {
     pub aspect_ratio: f32,
     pub image_width: i32,
+    pub focal_length: f32, 
     
     image_height: i32,
     center: Vec3, 
     pixel_upper_left: Vec3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
-    focal_length: f32, 
 }
 
 impl Camera {
