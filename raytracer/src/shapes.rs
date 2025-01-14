@@ -144,6 +144,10 @@ impl Triangle {
 
 impl Hittable for Triangle {
     fn hit(&self, r: &Ray, tmin: f32, tmax: f32, rec: &mut HitRec) -> bool {
-        
+        // N: normal of plane
+        // R: Ray
+        // if dot(R, N) is 0, then perp then parallel so no possible intersection.
+        // If intersection is behind ray (-t), then we return false
+        // The compute if inside triangle
     }
 }
