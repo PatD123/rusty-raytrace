@@ -108,9 +108,9 @@ impl Hittable for Sphere {
 
         // Determining valid t roots from sphere intersection
         let mut root = (-b - discriminant.sqrt()) / (2.0 * a);
-        if root < tmin || root > tmax {
+        if root < tmin || root >= tmax {
             root = (-b + discriminant.sqrt()) / (2.0 * a);
-            if root < tmin || root > tmax {
+            if root < tmin || root >= tmax {
                 return false;
             }
         }
@@ -130,14 +130,20 @@ pub struct Triangle {
     pub a: Vec3,
     pub b: Vec3, 
     pub c: Vec3,
+    color: Vec3,
 }
 
 impl Triangle {
-    pub fn new(a: Vec3, b: Vec3, c: Vec3) -> Self {
+    pub fn new(a: Vec3, b: Vec3, c: Vec3, color: Vec3) -> Self {
+        //
+        //         c
+        //         |
+        // a ----- b
         Self {
             a: a,
             b: b,
             c: c,
+            color: color,
         }
     }
 }
@@ -149,5 +155,60 @@ impl Hittable for Triangle {
         // if dot(R, N) is 0, then perp then parallel so no possible intersection.
         // If intersection is behind ray (-t), then we return false
         // The compute if inside triangle
+
+        let ab = self.b - self.a;
+        let ac = self.c - self.a;
+        let N = vec3::cross(ab, ac);  
+        
+        let NdotDir = vec3::dot(N, r.dir);
+        if NdotDir.abs() < 1e-8 {
+            // Ray parallel to triangle.
+            return false;
+        }
+
+        let D = -vec3::dot(N, self.a);
+        let t = -(vec3::dot(N, r.o) + D) / NdotDir;
+        if t <= 0.0 || t < tmin || t >= tmax {
+            // Means the triangle is behind the screen basically.
+            return false;
+        }
+
+        let P = r.at(t);
+
+        // Triangle BCP
+        let BP = P - self.b;
+        let BC = self.c - self.b;
+        let c = vec3::cross(BC, BP);
+        if vec3::dot(N, c) < 0.0 {
+            // println!("BCP");
+            return false;
+        }
+
+        // Triangle CAP
+        let CP = P - self.c;
+        let CA = self.a - self.c;
+        let c = vec3::cross(CA, CP);
+        if vec3::dot(N, c) < 0.0 {
+            // println!("CAP");
+            return false;
+        }
+
+        // Triangle ABP
+        let AP = P - self.a;
+        let AB = self.b - self.a;
+        let c = vec3::cross(AB, AP);
+        if vec3::dot(N, c) < 0.0 {
+            // println!("ABP");
+            return false;
+        }
+
+        // Recording it in the HitRecord.
+        rec.t = t;
+        rec.hit_p = P;
+        rec.color = self.color;
+        let outward_normal = N;
+        rec.set_face_normal(r, outward_normal);
+
+        true
     }
 }
