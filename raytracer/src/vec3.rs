@@ -45,6 +45,20 @@ impl Vec3 {
             z: self.z / len,
         }
     }
+
+    pub fn rotate_y(&mut self, angle: f32) {
+        let rot = vec![
+            vec![angle.cos(), 0.0, angle.sin()],
+            vec![0.0, 1.0, 0.0],
+            vec![-angle.sin(), 0.0, angle.cos()],
+        ];
+
+        let mut temp = Vec3::ZERO;
+        temp.x = rot[0][0] * self.x + rot[0][1] * self.y + rot[0][2] * self.z;
+        temp.y = rot[1][0] * self.x + rot[1][1] * self.y + rot[1][2] * self.z;
+        temp.z = rot[2][0] * self.x + rot[2][1] * self.y + rot[2][2] * self.z;
+        *self = temp;
+    }
 }
 
 // Addition

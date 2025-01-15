@@ -28,16 +28,12 @@ fn main() {
     let a = Vec3::new(0.5, 0.0, -2.0);
     let b = Vec3::new(-0.5, 0.0, -2.0);
     let c = Vec3::new(0.0, 3.0, -2.0);
-    world.add_obj(Box::new(Triangle::new(a, b, c, Vec3::new(0.0, 1.0, 1.0))));
+    world.add_obj(Box::new(Triangle::new(a, b, c, Vec3::new(1.0, 0.0, 1.0))));
 
     camera.render(&world);
 }
 
 // TODO
-// Abstraction for hittable trait using Rust
-// Make all shapes hittable.
-// Make a Hittable list World to store hittable objects
-// Figure out normals.
 // Interval class.
 
 #[cfg(test)]

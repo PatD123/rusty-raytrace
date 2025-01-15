@@ -12,6 +12,7 @@ use std::fs::File;
 use std::io::Write;
 
 pub const INFINITY: f32 = f32::INFINITY;
+const ORIGIN: Vec3 = Vec3::ZERO;
 
 pub struct Camera {
     pub aspect_ratio: f32,
@@ -30,12 +31,13 @@ impl Camera {
         Self {
             aspect_ratio: 0.0,
             image_width: 0,
+            focal_length: 1.0,
+
             image_height: 0,
-            center: Vec3::ZERO,
+            center: Vec3::new(0.0, 0.0, 2.0),
             pixel_upper_left: Vec3::ZERO,
             pixel_delta_u: Vec3::ZERO,
             pixel_delta_v: Vec3::ZERO,
-            focal_length: 1.0,
         }
     }
 
@@ -64,26 +66,47 @@ impl Camera {
     pub fn render(&mut self, world: &World) {
         // Initialize variables 
         self.initialize();
-
-        // Render
-        let mut f = File::create("examples/output.ppm").expect("Couldn't create file!");
-        let buf = ["P3\n", &self.image_width.to_string(), &format!(" {}\n", self.image_height.to_string()), "255\n"];
-        for s in buf.iter() {
-            f.write(s.as_bytes());
-        }
         
-        for i in 0..self.image_height {
-            println!("Scanlines remaining: {}", (self.image_height as i32 - i));
-            for j in 0..self.image_width {
-                let pixel_center = self.pixel_upper_left + (self.pixel_delta_u * j as f32) + (self.pixel_delta_v * i as f32);
-                let ray_dir = pixel_center - self.center;
-                let r = Ray::new(self.center, ray_dir);
+        for i in 0..360 {
+            println!("Angles remaining: {}", (360 - i));
+            let angle = i as f32 * std::f32::consts::PI/ 180.0;
+            let center = self.center;
+            self.center.rotate_y(angle);
+            let pixel_upper_left = self.pixel_upper_left;
+            self.pixel_upper_left.rotate_y(angle);
 
-                let pixel_color = ray_color(&r, &world);
-                write_color(&f, &pixel_color);
+            // Render
+            let mut nm = String::new();
+            if i < 10 {
+                nm = format!("testing/output00{}.ppm", i);
             }
-        }
+            else if i < 100 {
+                nm = format!("testing/output0{}.ppm", i);
+            }
+            else {
+                nm = format!("exatestingmples/output{}.ppm", i);
+            }
+            let mut f = File::create(nm).expect("Couldn't create file!");
+            let buf = ["P3\n", &self.image_width.to_string(), &format!(" {}\n", self.image_height.to_string()), "255\n"];
+            for s in buf.iter() {
+                f.write(s.as_bytes());
+            }
+            
+            for i in 0..self.image_height {
+                // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
+                for j in 0..self.image_width {                
+                    let pixel_center = self.pixel_upper_left + (self.pixel_delta_u * j as f32) + (self.pixel_delta_v * i as f32);
+                    let ray_dir = pixel_center - self.center;
+                    let r = Ray::new(self.center, ray_dir);
 
+                    let pixel_color = ray_color(&r, &world);
+                    write_color(&f, &pixel_color);
+                }
+            }
+
+            self.center = center;
+            self.pixel_upper_left = pixel_upper_left;
+        }
     }
 }
 
@@ -104,7 +127,7 @@ pub fn write_color(mut f: &File, color: &Vec3) {
 pub fn ray_color(ray: &Ray, world: &World) -> Vec3 {
     let mut hit_rec = HitRec::new();
     if world.hit(ray, 0.0, INFINITY, &mut hit_rec) {
-        return (hit_rec.normal + hit_rec.color) * 0.5;
+        return hit_rec.color;
     }
 
     let unit_dir = ray.direction().unit_vec();
