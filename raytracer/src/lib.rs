@@ -66,7 +66,7 @@ impl Camera {
     pub fn animate(&mut self, world: &World) {
         for i in 0..360 {
             println!("Angles remaining: {}", (360 - i));
-            let angle = 90 as f32 * std::f32::consts::PI/ 180.0;
+            let angle = i as f32 * std::f32::consts::PI/ 180.0;
             let center = self.center;
             let pixel_upper_left = self.pixel_upper_left;
             let pixel_delta_u = self.pixel_delta_u;
@@ -76,19 +76,12 @@ impl Camera {
             self.pixel_delta_u.rotate_y(angle);
             self.pixel_delta_v.rotate_y(angle);
 
-            println!("{}", self.center);
-            // println!("({}, {})", self.pixel_upper_left.x, self.pixel_upper_left.z);
-
             self.render_frame(world, i);
 
             self.center = center;
             self.pixel_upper_left = pixel_upper_left;
             self.pixel_delta_u = pixel_delta_u;
             self.pixel_delta_v = pixel_delta_v;
-
-            // println!("After {}", self.pixel_upper_left);
-
-            break;
         }
     }
 
@@ -100,20 +93,13 @@ impl Camera {
         for s in buf.iter() {
             f.write(s.as_bytes());
         }
-        
-        let mut log = File::create("log.txt").expect("Couldn't create file!");
 
         for i in 0..self.image_height {
             // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
-            log.write(&format!("Scanlines remaining: {}", (self.image_height as i32 - i)).as_bytes());
             for j in 0..self.image_width {                
                 let pixel_center = self.pixel_upper_left + (self.pixel_delta_u * j as f32) + (self.pixel_delta_v * i as f32);
                 let ray_dir = pixel_center - self.center;
                 let r = Ray::new(self.center, ray_dir);
-
-                log.write(&pixel_center.x.to_string().as_bytes()); log.write(b" ");
-                log.write(&pixel_center.y.to_string().as_bytes()); log.write(b" ");
-                log.write(&pixel_center.z.to_string().as_bytes()); log.write(b"\n");
 
                 let pixel_color = ray_color(&r, &world);
                 write_color(&f, &pixel_color);

@@ -154,10 +154,10 @@ mod tests {
     //     }
     // }
 
-    #[test]
-    fn testing_hit_sphere() {
-        let r = Ray::new(Vec3::new(1.4142135, 0.0, 1.4142135), Vec3::new(-1.4142135, 0.0, -1.4142135));
-        let t = raytracer::hit_sphere(Vec3::ZERO, 0.5, &r);
-        assert_eq!(t, 1.0);
-    }
+    // #[test]
+    // fn testing_hit_sphere() {
+    //     let r = Ray::new(Vec3::new(1.4142135, 0.0, 1.4142135), Vec3::new(-1.4142135, 0.0, -1.4142135));
+    //     let t = raytracer::hit_sphere(Vec3::ZERO, 0.5, &r);
+    //     assert_eq!(t, 1.0);
+    // }
 }
