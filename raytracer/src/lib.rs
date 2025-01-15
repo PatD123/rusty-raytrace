@@ -81,16 +81,7 @@ impl Camera {
 
     pub fn render_frame(&mut self, world: &World, frame_id: i32) {
         // Render
-        let mut nm = String::new();
-        if frame_id < 10 {
-            nm = format!("testing/output00{}.ppm", frame_id);
-        }
-        else if frame_id < 100 {
-            nm = format!("testing/output0{}.ppm", frame_id);
-        }
-        else {
-            nm = format!("exatestingmples/output{}.ppm", frame_id);
-        }
+        let nm = format!("testing/output{:03}.ppm", frame_id);
         let mut f = File::create(nm).expect("Couldn't create file!");
         let buf = ["P3\n", &self.image_width.to_string(), &format!(" {}\n", self.image_height.to_string()), "255\n"];
         for s in buf.iter() {
