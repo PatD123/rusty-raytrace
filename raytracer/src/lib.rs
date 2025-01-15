@@ -72,10 +72,14 @@ impl Camera {
             let pixel_upper_left = self.pixel_upper_left;
             self.pixel_upper_left.rotate_y(angle);
 
+            // println!("Before {}", self.center);
+
             self.render_frame(world, i);
 
             self.center = center;
             self.pixel_upper_left = pixel_upper_left;
+
+            // println!("After {}", self.center.length());
         }
     }
 
