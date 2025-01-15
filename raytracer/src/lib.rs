@@ -66,20 +66,23 @@ impl Camera {
     pub fn animate(&mut self, world: &World) {
         for i in 0..360 {
             println!("Angles remaining: {}", (360 - i));
-            let angle = i as f32 * std::f32::consts::PI/ 180.0;
+            let angle = 0 as f32 * std::f32::consts::PI/ 180.0;
             let center = self.center;
             self.center.rotate_y(angle);
             let pixel_upper_left = self.pixel_upper_left;
             self.pixel_upper_left.rotate_y(angle);
 
-            // println!("Before {}", self.center);
+            // println!("{}", self.center);
+            // println!("({}, {})", self.pixel_upper_left.x, self.pixel_upper_left.z);
 
             self.render_frame(world, i);
 
             self.center = center;
             self.pixel_upper_left = pixel_upper_left;
 
-            // println!("After {}", self.center.length());
+            // println!("After {}", self.pixel_upper_left);
+
+            break;
         }
     }
 
@@ -92,12 +95,19 @@ impl Camera {
             f.write(s.as_bytes());
         }
         
+        let mut log = File::create("log.txt").expect("Couldn't create file!");
+
         for i in 0..self.image_height {
             // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
+            log.write(&format!("Scanlines remaining: {}", (self.image_height as i32 - i)).as_bytes());
             for j in 0..self.image_width {                
                 let pixel_center = self.pixel_upper_left + (self.pixel_delta_u * j as f32) + (self.pixel_delta_v * i as f32);
                 let ray_dir = pixel_center - self.center;
                 let r = Ray::new(self.center, ray_dir);
+
+                log.write(&ray_dir.x.to_string().as_bytes()); log.write(b" ");
+                log.write(&ray_dir.y.to_string().as_bytes()); log.write(b" ");
+                log.write(&ray_dir.z.to_string().as_bytes()); log.write(b"\n");
 
                 let pixel_color = ray_color(&r, &world);
                 write_color(&f, &pixel_color);
@@ -131,8 +141,8 @@ pub fn ray_color(ray: &Ray, world: &World) -> Vec3 {
     Vec3::new(1.0, 1.0, 1.0) * (1.0 - a) + Vec3::new(0.5, 0.7, 1.0) * a
 }
 
-pub fn hit_sphere(sphere_center: &Vec3, radius: f32, r: &Ray) -> f32{
-    let oc = *sphere_center - r.origin();
+pub fn hit_sphere(sphere_center: Vec3, radius: f32, r: &Ray) -> f32{
+    let oc = sphere_center - r.origin();
     let a = vec3::dot(r.direction(), r.direction());
     let b = -2.0 * vec3::dot(r.direction(), oc);
     let c = vec3::dot(oc, oc) - radius * radius;

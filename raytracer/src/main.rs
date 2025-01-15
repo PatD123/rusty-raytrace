@@ -23,12 +23,12 @@ fn main() {
 
     let mut world = World::new();
     world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, Vec3::new(0.0, 0.0, 1.0))));
+    // world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, Vec3::new(0.0, 0.0, 1.0))));
 
     let a = Vec3::new(0.5, 0.0, -2.0);
     let b = Vec3::new(-0.5, 0.0, -2.0);
     let c = Vec3::new(0.0, 3.0, -2.0);
-    world.add_obj(Box::new(Triangle::new(a, b, c, Vec3::new(1.0, 0.0, 1.0))));
+    // world.add_obj(Box::new(Triangle::new(a, b, c, Vec3::new(1.0, 0.0, 1.0))));
 
     camera.initialize();
     camera.animate(&world);
@@ -153,4 +153,11 @@ mod tests {
     //         }
     //     }
     // }
+
+    #[test]
+    fn testing_hit_sphere() {
+        let r = Ray::new(Vec3::new(1.4142135, 0.0, 1.4142135), Vec3::new(-1.4142135, 0.0, -1.4142135));
+        let t = raytracer::hit_sphere(Vec3::ZERO, 0.5, &r);
+        assert_eq!(t, 1.0);
+    }
 }

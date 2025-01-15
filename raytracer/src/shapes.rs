@@ -4,6 +4,9 @@ use crate::Ray;
 use crate::Vec3;
 use crate::vec3;
 
+use std::fs::File;
+use std::io::Write;
+
 pub trait Hittable {
     fn hit(&self, r: &Ray, tmin: f32, tmax: f32, hit_rec: &mut HitRec) -> bool;
 }
@@ -64,8 +67,7 @@ impl Hittable for World {
         let mut closest = tmax;
         
         // Loop through all world objects
-        for obj in &self.objs {
-
+        for (i, obj) in self.objs.iter().enumerate() {
             // Have each object be hit (if it can get hit by ray)
             if obj.hit(r, tmin, closest, &mut temp_rec) {
                 flag = true;
