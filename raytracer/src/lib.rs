@@ -63,25 +63,22 @@ impl Camera {
         self.pixel_upper_left = viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5;
     }
 
+    pub fn rotate_y(&mut self, angle: f32) {
+        self.center.rotate_y(angle);
+        self.pixel_upper_left.rotate_y(angle);
+        self.pixel_delta_u.rotate_y(angle);
+        self.pixel_delta_v.rotate_y(angle);
+    }
+
     pub fn animate(&mut self, world: &World) {
         for i in 0..360 {
             println!("Angles remaining: {}", (360 - i));
             let angle = i as f32 * std::f32::consts::PI/ 180.0;
-            let center = self.center;
-            let pixel_upper_left = self.pixel_upper_left;
-            let pixel_delta_u = self.pixel_delta_u;
-            let pixel_delta_v = self.pixel_delta_v;
-            self.center.rotate_y(angle);
-            self.pixel_upper_left.rotate_y(angle);
-            self.pixel_delta_u.rotate_y(angle);
-            self.pixel_delta_v.rotate_y(angle);
+            self.rotate_y(angle);
 
             self.render_frame(world, i);
 
-            self.center = center;
-            self.pixel_upper_left = pixel_upper_left;
-            self.pixel_delta_u = pixel_delta_u;
-            self.pixel_delta_v = pixel_delta_v;
+            self.rotate_y(-angle);
         }
     }
 
