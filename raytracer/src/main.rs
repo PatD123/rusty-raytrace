@@ -23,6 +23,7 @@ fn main() {
 
     let mut world = World::new();
     world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 2.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
     world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, Vec3::new(0.0, 0.0, 1.0))));
 
     let a = Vec3::new(-2.0, 0.0, 0.0);
@@ -36,6 +37,8 @@ fn main() {
 
 // TODO
 // Interval class.
+// Have to figure out normal vs back
+// Shaders
 
 #[cfg(test)]
 mod tests {
@@ -152,12 +155,5 @@ mod tests {
     //             write_color(&f, &pixel_color);
     //         }
     //     }
-    // }
-
-    // #[test]
-    // fn testing_hit_sphere() {
-    //     let r = Ray::new(Vec3::new(1.4142135, 0.0, 1.4142135), Vec3::new(-1.4142135, 0.0, -1.4142135));
-    //     let t = raytracer::hit_sphere(Vec3::ZERO, 0.5, &r);
-    //     assert_eq!(t, 1.0);
     // }
 }

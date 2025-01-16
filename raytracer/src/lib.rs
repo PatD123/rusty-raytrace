@@ -10,6 +10,7 @@ use shapes::Hittable;
 
 use std::fs::File;
 use std::io::Write;
+use rand::Rng;
 
 pub const INFINITY: f32 = f32::INFINITY;
 const ORIGIN: Vec3 = Vec3::ZERO;
@@ -24,6 +25,7 @@ pub struct Camera {
     pixel_upper_left: Vec3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
+    samples_per_pixel: i32,
 }
 
 impl Camera {
@@ -34,10 +36,11 @@ impl Camera {
             focal_length: 1.0,
 
             image_height: 0,
-            center: Vec3::new(0.0, 0.0, 2.0),
+            center: Vec3::new(0.0, 0.0, 3.0),
             pixel_upper_left: Vec3::ZERO,
             pixel_delta_u: Vec3::ZERO,
             pixel_delta_v: Vec3::ZERO,
+            samples_per_pixel: 10,
         }
     }
 
@@ -63,17 +66,10 @@ impl Camera {
         self.pixel_upper_left = viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5;
     }
 
-    pub fn rotate_y(&mut self, angle: f32) {
-        self.center.rotate_y(angle);
-        self.pixel_upper_left.rotate_y(angle);
-        self.pixel_delta_u.rotate_y(angle);
-        self.pixel_delta_v.rotate_y(angle);
-    }
-
     pub fn animate(&mut self, world: &World) {
         for i in 0..360 {
             println!("Angles remaining: {}", (360 - i));
-            let angle = i as f32 * std::f32::consts::PI/ 180.0;
+            let angle = deg2rad(i as f32);
             self.rotate_y(angle);
 
             self.render_frame(world, i);
@@ -93,15 +89,42 @@ impl Camera {
 
         for i in 0..self.image_height {
             // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
-            for j in 0..self.image_width {                
-                let pixel_center = self.pixel_upper_left + (self.pixel_delta_u * j as f32) + (self.pixel_delta_v * i as f32);
-                let ray_dir = pixel_center - self.center;
-                let r = Ray::new(self.center, ray_dir);
+            for j in 0..self.image_width {
+                // Used later to average for antialiasing
+                let mut total_pixel_color = Vec3::ZERO;
 
-                let pixel_color = ray_color(&r, &world);
-                write_color(&f, &pixel_color);
+                for k in 0..self.samples_per_pixel {
+                    let r = self.get_ray(i as f32, j as f32);
+                    let pixel_color = ray_color(&r, &world);
+                    total_pixel_color += pixel_color;
+                }
+
+                total_pixel_color /= self.samples_per_pixel as f32; 
+
+                write_color(&f, &total_pixel_color);
             }
         }
+    }
+
+    fn get_ray(&self, i: f32, j: f32) -> Ray {
+        // Prolly should get a random x and random y offset
+        let sampled_square_delta = sample_square();
+
+        // Add to pixel_center to get the actual sample
+        let mut pixel_center = self.pixel_upper_left + 
+                               (self.pixel_delta_u * (j + sampled_square_delta.0)) +
+                               (self.pixel_delta_v * (i + sampled_square_delta.1));
+
+        // Return ray
+        let ray_dir = pixel_center - self.center;
+        Ray::new(self.center, ray_dir)
+    }
+
+    pub fn rotate_y(&mut self, angle: f32) {
+        self.center.rotate_y(angle);
+        self.pixel_upper_left.rotate_y(angle);
+        self.pixel_delta_u.rotate_y(angle);
+        self.pixel_delta_v.rotate_y(angle);
     }
 }
 
@@ -134,16 +157,42 @@ pub fn ray_color(ray: &Ray, world: &World) -> Vec3 {
     Vec3::new(1.0, 1.0, 1.0) * (1.0 - a) + Vec3::new(0.5, 0.7, 1.0) * a
 }
 
-pub fn hit_sphere(sphere_center: Vec3, radius: f32, r: &Ray) -> f32{
-    let oc = sphere_center - r.origin();
-    let a = vec3::dot(r.direction(), r.direction());
-    let b = -2.0 * vec3::dot(r.direction(), oc);
-    let c = vec3::dot(oc, oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    
-    if discriminant < 0.0 {
-        return -1.0;
-    } else {
-        return (-b - discriminant.sqrt()) / (2.0 * a);
+pub fn deg2rad(angle: f32) -> f32 {
+    angle * std::f32::consts::PI/ 180.0
+}
+
+pub fn random_num(l: f32, h: f32) -> f32 {
+    rand::thread_rng().gen_range(l..=h)
+}
+
+pub fn sample_square() -> (f32, f32) {
+    (random_num(-0.5, 0.5), random_num(-0.5, 0.5))
+}
+
+pub fn clamp(min: f32, max: f32, num: f32) -> f32 {
+    if num < min {
+        min
+    }
+    else if num > max {
+        max
+    }
+    else {
+        num
     }
 }
+
+// pub fn hit_sphere(sphere_center: Vec3, radius: f32, r: &Ray) -> f32{
+//     let oc = sphere_center - r.origin();
+//     let a = vec3::dot(r.direction(), r.direction());
+//     let b = -2.0 * vec3::dot(r.direction(), oc);
+//     let c = vec3::dot(oc, oc) - radius * radius;
+//     let discriminant = b * b - 4.0 * a * c;
+    
+//     if discriminant < 0.0 {
+//         return -1.0;
+//     } else {
+//         return (-b - discriminant.sqrt()) / (2.0 * a);
+//     }
+// }
+
+
