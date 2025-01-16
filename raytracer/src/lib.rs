@@ -122,7 +122,11 @@ pub fn write_color(mut f: &File, color: &Vec3) {
 pub fn ray_color(ray: &Ray, world: &World) -> Vec3 {
     let mut hit_rec = HitRec::new();
     if world.hit(ray, 0.0, INFINITY, &mut hit_rec) {
-        return hit_rec.color;
+        let c = (hit_rec.color + hit_rec.normal) * 0.5;
+        if c.x > 1.0 || c.y > 1.0 || c.z > 1.0 {
+            return hit_rec.color;
+        }
+        return c;        
     }
 
     let unit_dir = ray.direction().unit_vec();

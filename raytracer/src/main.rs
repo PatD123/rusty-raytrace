@@ -25,9 +25,9 @@ fn main() {
     world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
     world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, Vec3::new(0.0, 0.0, 1.0))));
 
-    let a = Vec3::new(0.5, 0.0, -2.0);
-    let b = Vec3::new(-0.5, 0.0, -2.0);
-    let c = Vec3::new(0.0, 3.0, -2.0);
+    let a = Vec3::new(-2.0, 0.0, 0.0);
+    let b = Vec3::new(-1.5, 0.0, 0.0);
+    let c = Vec3::new(-1.25, 3.0, 0.0);
     world.add_obj(Box::new(Triangle::new(a, b, c, Vec3::new(1.0, 0.0, 1.0))));
 
     camera.initialize();
