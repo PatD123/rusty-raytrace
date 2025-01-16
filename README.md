@@ -21,6 +21,10 @@ Supports camera rotation as shown below.
 https://github.com/user-attachments/assets/eb161985-db12-4a53-9395-1964fc160bab
 
 
+https://github.com/user-attachments/assets/17686b5b-6eda-450e-8af1-f2754e946358
+
+
+
 
 ## For Converting Lump PPM to MP4
 
