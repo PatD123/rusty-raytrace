@@ -18,7 +18,8 @@ a cute lil gradient.
 
 Supports camera rotation as shown below.
 
-https://github.com/user-attachments/assets/eb161985-db12-4a53-9395-1964fc160bab
+
+https://github.com/user-attachments/assets/9652e9cf-2975-4f85-bc3f-05addf3362d3
 
 
 https://github.com/user-attachments/assets/17686b5b-6eda-450e-8af1-f2754e946358
