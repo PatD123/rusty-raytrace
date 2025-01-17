@@ -48,7 +48,9 @@ ffmpeg -framerate 30 -i output%03d.ppm -vf "scale=400:224" -c:v libx264 -pix_fmt
 2) Basic raytracing (no shaders)
 3) Camera animations + rotations
 4) Diffuse material
+   
+
+https://github.com/user-attachments/assets/1824d8ea-b753-4bb4-b5b8-382a4d70b82e
 
 
-https://github.com/user-attachments/assets/4b3ae2be-f833-4d64-8e84-0ee9f9fb32e6
 
