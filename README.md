@@ -47,10 +47,9 @@ ffmpeg -framerate 30 -i output%03d.ppm -vf "scale=400:224" -c:v libx264 -pix_fmt
 1) Vecs and Rays
 2) Basic raytracing (no shaders)
 3) Camera animations + rotations
-4) Diffuse material
+4) Diffuse material + Higher Resolution (years to render) --> I could try and do some async programming.
    
 
-https://github.com/user-attachments/assets/1824d8ea-b753-4bb4-b5b8-382a4d70b82e
-
+https://github.com/user-attachments/assets/3eb30413-b2e4-425a-bc69-7fb47deebf55
 
 
