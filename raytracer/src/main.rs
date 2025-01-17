@@ -4,6 +4,7 @@ use std::io::Write;
 use raytracer::vec3;
 use raytracer::ray;
 use raytracer::shapes;
+use raytracer::materials;
 
 use vec3::Vec3;
 use ray::Ray;

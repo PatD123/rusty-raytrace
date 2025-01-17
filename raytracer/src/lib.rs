@@ -1,6 +1,7 @@
 pub mod vec3;
 pub mod ray;
 pub mod shapes;
+pub mod materials;
 
 use vec3::Vec3;
 use ray::Ray;
