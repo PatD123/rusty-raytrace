@@ -14,6 +14,7 @@ use rand::Rng;
 
 pub const INFINITY: f32 = f32::INFINITY;
 const ORIGIN: Vec3 = Vec3::ZERO;
+const MAX_DEPTH: i32 = 10;
 
 pub struct Camera {
     pub aspect_ratio: f32,
@@ -95,7 +96,7 @@ impl Camera {
 
                 for k in 0..self.samples_per_pixel {
                     let r = self.get_ray(i as f32, j as f32);
-                    let pixel_color = ray_color(&r, &world);
+                    let pixel_color = ray_color(&r, &world, MAX_DEPTH);
                     total_pixel_color += pixel_color;
                 }
 
@@ -142,14 +143,21 @@ pub fn write_color(mut f: &File, color: &Vec3) {
     f.write(bbyte.to_string().as_bytes()); f.write("\n".as_bytes());
 }
 
-pub fn ray_color(ray: &Ray, world: &World) -> Vec3 {
+pub fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
+    if depth <= 0 {
+        return Vec3::ONE;
+    }
+
     let mut hit_rec = HitRec::new();
-    if world.hit(ray, 0.0, INFINITY, &mut hit_rec) {
-        let c = (hit_rec.color + hit_rec.normal) * 0.5;
-        if c.x > 1.0 || c.y > 1.0 || c.z > 1.0 {
-            return hit_rec.color;
-        }
-        return c;        
+    if world.hit(ray, 0.0001, INFINITY, &mut hit_rec) { // Dec for anti-acne.   
+        // let c = (hit_rec.color + hit_rec.normal) * 0.5;
+        // if c.x > 1.0 || c.y > 1.0 || c.z > 1.0 {
+        //     return hit_rec.color;
+        // }
+        // return c;        
+
+        let refl = random_on_hemisphere(hit_rec.normal);
+        return ray_color(&Ray::new(hit_rec.hit_p, refl), world, depth - 1) * 0.5;
     }
 
     let unit_dir = ray.direction().unit_vec();
@@ -178,6 +186,35 @@ pub fn clamp(min: f32, max: f32, num: f32) -> f32 {
     }
     else {
         num
+    }
+}
+
+pub fn random_vector(l: f32, h: f32) -> Vec3 {
+    Vec3 {
+        x: random_num(l, h),
+        y: random_num(l, h),
+        z: random_num(l, h),
+    }
+}
+
+// pub fn random_unit_vector() -> Vec3 {
+//     loop {
+//         let p = random_vector(-1.0, 1.0);
+//         let lensq = p.length_squared();
+//         println!("{}", lensq);
+//         if f32::MIN < lensq && lensq <= 1.0 {
+//             return p.unit_vec();
+//         }
+//     }
+// }
+
+pub fn random_on_hemisphere(n: Vec3) -> Vec3 {
+    let v = random_vector(-1.0, 1.0).unit_vec();
+    if vec3::dot(v, n) < 0.0 {
+        -v
+    }
+    else {
+        v
     }
 }
 

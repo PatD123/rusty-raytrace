@@ -16,20 +16,16 @@ fn main() {
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
     camera.image_width = 400;
-    // Longer focal length, more magnification. If greater focal length,
-    // the closer the sensor is to where everything converges, so it captures
-    // a lot more.
-    camera.focal_length = 1.0;
 
     let mut world = World::new();
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 2.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, Vec3::new(0.0, 0.0, 1.0))));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, Vec3::new(1.0, 1.0, 1.0))));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, Vec3::new(1.0, 1.0, 1.0))));
 
     let a = Vec3::new(-2.0, 0.0, 0.0);
     let b = Vec3::new(-1.5, 0.0, 0.0);
     let c = Vec3::new(-1.25, 3.0, 0.0);
-    world.add_obj(Box::new(Triangle::new(a, b, c, Vec3::new(1.0, 0.0, 1.0))));
+    // world.add_obj(Box::new(Triangle::new(a, b, c, Vec3::new(1.0, 0.0, 1.0))));
 
     camera.initialize();
     camera.animate(&world);
@@ -155,5 +151,12 @@ mod tests {
     //             write_color(&f, &pixel_color);
     //         }
     //     }
+    // }
+    
+    // #[test]
+    // fn testing_random_vec() {
+    //     let v = raytracer::random_vector();
+    //     let v_= v.unit_vec();
+    //     assert_eq!(v_.length(), 1.0);
     // }
 }

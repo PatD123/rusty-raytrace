@@ -178,7 +178,7 @@ pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
         y: u.z * v.x - u.x * v.z,
         z: u.x * v.y - u.y * v.x,
     }
-}   
+}
 
 
 
