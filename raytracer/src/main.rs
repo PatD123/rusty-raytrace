@@ -1,6 +1,3 @@
-use std::fs::File;
-use std::io::Write;
-
 use raytracer::vec3;
 use raytracer::ray;
 use raytracer::shapes;
@@ -12,6 +9,11 @@ use shapes::World;
 use shapes::Sphere;
 use shapes::Triangle;
 use raytracer::Camera;
+use materials::Lambertian;
+
+use std::fs::File;
+use std::io::Write;
+use std::rc::Rc;
 
 fn main() {
     let mut camera = Camera::new();
@@ -20,10 +22,15 @@ fn main() {
     camera.samples_per_pixel = 100;
     camera.max_depth = 20;
 
+    let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
+    let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
+    let material_right = Rc::new(Lambertian::new(Vec3::new(0.6, 0.2, 0.5)));
+
+
     let mut world = World::new();
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, Vec3::new(1.0, 1.0, 1.0))));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, Vec3::new(1.0, 1.0, 1.0))));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, material_right)));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left)));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, material_ground)));
 
     let a = Vec3::new(-2.0, 0.0, 0.0);
     let b = Vec3::new(-1.5, 0.0, 0.0);

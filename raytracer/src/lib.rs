@@ -8,6 +8,7 @@ use ray::Ray;
 use shapes::World;
 use shapes::HitRec;
 use shapes::Hittable;
+use materials::{Material, Lambertian};
 
 use std::fs::File;
 use std::io::Write;
@@ -160,8 +161,14 @@ pub fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
         // return c;        
 
         // let refl = random_on_hemisphere(hit_rec.normal);
-        let refl = hit_rec.normal + random_vector(-1.0, 1.0).unit_vec();
-        return ray_color(&Ray::new(hit_rec.hit_p, refl), world, depth - 1) * 0.5;
+        // let refl = hit_rec.normal + random_vector(-1.0, 1.0).unit_vec();
+
+        let mut r_scat = Ray::new(Vec3::ZERO, Vec3::ZERO);
+        let mut atten = Vec3::ZERO;
+        if hit_rec.mat.scatter(&ray, &hit_rec, &mut r_scat, &mut atten) {
+            return atten * ray_color(&r_scat, world, depth - 1);
+        }
+        return Vec3::ZERO;
     }
 
     let unit_dir = ray.direction().unit_vec();

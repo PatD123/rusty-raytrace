@@ -8,12 +8,31 @@ use crate::random_vector;
 // Lambertian
 // Metal
 
+// Pseudocode
+// loop thru each obj in world -> you get a hit --> hit_rec
+//      for the hit_rec (mat, hit_p)
+//          1) Scatter off hit_rec.mat
+//          2) Return scattered and attentuation from hit_p
+// 
+//       ray_color() recurse using atten_i, scattered_i
+// 
+// 
+
 pub trait Material {
     fn scatter(&self, r: &Ray, hit_rec: &HitRec, r_scat: &mut Ray, atten: &mut Vec3) -> bool;
 }
 
+#[derive(Debug, Copy, Clone)]
 pub struct Lambertian {
     pub albedo: Vec3,
+}
+
+impl Lambertian {
+    pub fn new(albedo: Vec3) -> Self {
+        Self {
+            albedo: albedo,
+        }
+    }
 }
 
 impl Material for Lambertian {
