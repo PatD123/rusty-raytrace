@@ -16,6 +16,8 @@ fn main() {
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
     camera.image_width = 400;
+    camera.samples_per_pixel = 100;
+    camera.max_depth = 20;
 
     let mut world = World::new();
     world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, Vec3::new(1.0, 1.0, 1.0))));

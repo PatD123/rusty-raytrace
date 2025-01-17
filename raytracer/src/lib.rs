@@ -20,13 +20,14 @@ pub struct Camera {
     pub aspect_ratio: f32,
     pub image_width: i32,
     pub focal_length: f32, 
+    pub samples_per_pixel: i32,
+    pub max_depth: i32,
     
     image_height: i32,
     center: Vec3, 
     pixel_upper_left: Vec3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
-    samples_per_pixel: i32,
 }
 
 impl Camera {
@@ -35,13 +36,14 @@ impl Camera {
             aspect_ratio: 0.0,
             image_width: 0,
             focal_length: 1.0,
+            samples_per_pixel: 10,
+            max_depth: 10,
 
             image_height: 0,
             center: Vec3::new(0.0, 0.0, 3.0),
             pixel_upper_left: Vec3::ZERO,
             pixel_delta_u: Vec3::ZERO,
             pixel_delta_v: Vec3::ZERO,
-            samples_per_pixel: 10,
         }
     }
 
