@@ -53,3 +53,8 @@ ffmpeg -framerate 30 -i output%03d.ppm -vf "scale=400:224" -c:v libx264 -pix_fmt
 https://github.com/user-attachments/assets/3eb30413-b2e4-425a-bc69-7fb47deebf55
 
 
+5) Colors + Lambertian Materials!
+
+
+https://github.com/user-attachments/assets/aa0447b1-71fc-43d8-b13b-1f3824d31ab5
+
