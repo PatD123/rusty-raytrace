@@ -37,6 +37,7 @@ fn main() {
 // Interval class.
 // Have to figure out normal vs back
 // Shaders
+// Fix moire patterns
 
 #[cfg(test)]
 mod tests {

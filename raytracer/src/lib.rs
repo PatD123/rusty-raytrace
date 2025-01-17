@@ -158,7 +158,8 @@ pub fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
         // }
         // return c;        
 
-        let refl = random_on_hemisphere(hit_rec.normal);
+        // let refl = random_on_hemisphere(hit_rec.normal);
+        let refl = hit_rec.normal + random_vector(-1.0, 1.0).unit_vec();
         return ray_color(&Ray::new(hit_rec.hit_p, refl), world, depth - 1) * 0.5;
     }
 

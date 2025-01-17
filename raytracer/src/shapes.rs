@@ -1,11 +1,10 @@
-use std::vec;
-
 use crate::Ray;
 use crate::Vec3;
 use crate::vec3;
 
 use std::fs::File;
 use std::io::Write;
+use std::vec;
 
 pub trait Hittable {
     fn hit(&self, r: &Ray, tmin: f32, tmax: f32, hit_rec: &mut HitRec) -> bool;
