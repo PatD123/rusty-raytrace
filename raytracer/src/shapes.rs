@@ -1,23 +1,24 @@
-use std::vec;
-
 use crate::Ray;
 use crate::Vec3;
+use crate::Material;
+use crate::Lambertian;
 use crate::vec3;
 
 use std::fs::File;
 use std::io::Write;
+use std::vec;
+use std::rc::Rc;
 
 pub trait Hittable {
     fn hit(&self, r: &Ray, tmin: f32, tmax: f32, hit_rec: &mut HitRec) -> bool;
 }
 
-#[derive(Debug, Copy, Clone)]
 pub struct HitRec {
     pub hit_p: Vec3,
     pub normal: Vec3,
     pub t: f32,
     pub front_face: bool,
-    pub color: Vec3,
+    pub mat: Rc<dyn Material>,
 }
 
 impl HitRec {
@@ -27,7 +28,7 @@ impl HitRec {
             normal: Vec3::ZERO,
             t: 0.0,
             front_face: true,
-            color: Vec3::ZERO,
+            mat: Rc::new(Lambertian::new(Vec3::ZERO)),
         }
     }
 
@@ -72,9 +73,15 @@ impl Hittable for World {
             if obj.hit(r, tmin, closest, &mut temp_rec) {
                 flag = true;
                 closest = temp_rec.t; // Keep track of objects of least depth.
-                *hit_rec = temp_rec;
+                // *hit_rec = temp_rec;
             }
         }
+
+        hit_rec.hit_p = temp_rec.hit_p;
+        hit_rec.normal = temp_rec.normal;
+        hit_rec.t = temp_rec.t;
+        hit_rec.front_face = temp_rec.front_face;
+        hit_rec.mat = Rc::clone(&temp_rec.mat);
 
         return flag;
     }
@@ -83,15 +90,15 @@ impl Hittable for World {
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    pub color: Vec3,
+    pub mat: Rc<dyn Material>, // Has a material that is a smort pointer to anything that implements a material.
 }
 
 impl Sphere {
-    pub fn new(sphere_center: Vec3, radius: f32, color: Vec3) -> Self {
+    pub fn new(sphere_center: Vec3, radius: f32, mat: Rc<dyn Material>) -> Self {
         Self {
             center: sphere_center,
             radius: radius,
-            color: color,
+            mat: Rc::clone(&mat),
         }
     }
 }
@@ -120,9 +127,9 @@ impl Hittable for Sphere {
         // Recording it in the HitRecord.
         rec.t = root;
         rec.hit_p = r.at(root);
-        rec.color = self.color;
         let outward_normal = (rec.hit_p - self.center) / self.radius;
         rec.set_face_normal(r, outward_normal);
+        rec.mat = Rc::clone(&self.mat);
 
         true
     }
@@ -207,7 +214,6 @@ impl Hittable for Triangle {
         // Recording it in the HitRecord.
         rec.t = t;
         rec.hit_p = P;
-        rec.color = self.color;
         let outward_normal = N;
         rec.set_face_normal(r, outward_normal);
 

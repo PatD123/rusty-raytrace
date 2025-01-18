@@ -1,12 +1,14 @@
 pub mod vec3;
 pub mod ray;
 pub mod shapes;
+pub mod materials;
 
 use vec3::Vec3;
 use ray::Ray;
 use shapes::World;
 use shapes::HitRec;
 use shapes::Hittable;
+use materials::{Material, Lambertian};
 
 use std::fs::File;
 use std::io::Write;
@@ -91,7 +93,7 @@ impl Camera {
         }
 
         for i in 0..self.image_height {
-            // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
+            println!("Scanlines remaining: {}", (self.image_height as i32 - i));
             for j in 0..self.image_width {
                 // Used later to average for antialiasing
                 let mut total_pixel_color = Vec3::ZERO;
@@ -158,8 +160,15 @@ pub fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
         // }
         // return c;        
 
-        let refl = random_on_hemisphere(hit_rec.normal);
-        return ray_color(&Ray::new(hit_rec.hit_p, refl), world, depth - 1) * 0.5;
+        // let refl = random_on_hemisphere(hit_rec.normal);
+        // let refl = hit_rec.normal + random_vector(-1.0, 1.0).unit_vec();
+
+        let mut r_scat = Ray::new(Vec3::ZERO, Vec3::ZERO);
+        let mut atten = Vec3::ZERO;
+        if hit_rec.mat.scatter(&ray, &hit_rec, &mut r_scat, &mut atten) {
+            return atten * ray_color(&r_scat, world, depth - 1);
+        }
+        return Vec3::ZERO;
     }
 
     let unit_dir = ray.direction().unit_vec();
@@ -199,6 +208,21 @@ pub fn random_vector(l: f32, h: f32) -> Vec3 {
     }
 }
 
+pub fn random_on_hemisphere(n: Vec3) -> Vec3 {
+    let v = random_vector(-1.0, 1.0).unit_vec();
+    if vec3::dot(v, n) < 0.0 {
+        -v
+    }
+    else {
+        v
+    }
+}
+
+pub fn reflect_vector(v: Vec3, n: Vec3) -> Vec3 {
+    // Draw v twice in diagonal, then come up in diagram.
+    v - n * 2.0 * vec3::dot(v, n)
+}
+
 // pub fn random_unit_vector() -> Vec3 {
 //     loop {
 //         let p = random_vector(-1.0, 1.0);
@@ -209,16 +233,6 @@ pub fn random_vector(l: f32, h: f32) -> Vec3 {
 //         }
 //     }
 // }
-
-pub fn random_on_hemisphere(n: Vec3) -> Vec3 {
-    let v = random_vector(-1.0, 1.0).unit_vec();
-    if vec3::dot(v, n) < 0.0 {
-        -v
-    }
-    else {
-        v
-    }
-}
 
 // pub fn hit_sphere(sphere_center: Vec3, radius: f32, r: &Ray) -> f32{
 //     let oc = sphere_center - r.origin();

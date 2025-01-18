@@ -1,9 +1,7 @@
-use std::fs::File;
-use std::io::Write;
-
 use raytracer::vec3;
 use raytracer::ray;
 use raytracer::shapes;
+use raytracer::materials;
 
 use vec3::Vec3;
 use ray::Ray;
@@ -11,18 +9,28 @@ use shapes::World;
 use shapes::Sphere;
 use shapes::Triangle;
 use raytracer::Camera;
+use materials::{Lambertian, Metal};
+
+use std::fs::File;
+use std::io::Write;
+use std::rc::Rc;
 
 fn main() {
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
-    camera.image_width = 400;
-    camera.samples_per_pixel = 100;
-    camera.max_depth = 20;
+    camera.image_width = 1000;
+    camera.samples_per_pixel = 300;
+    camera.max_depth = 50;
+
+    let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
+    let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
+    let material_right = Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8)));
+
 
     let mut world = World::new();
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, Vec3::new(1.0, 1.0, 1.0))));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, Vec3::new(0.0, 1.0, 0.0))));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, Vec3::new(1.0, 1.0, 1.0))));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, material_right)));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left)));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, material_ground)));
 
     let a = Vec3::new(-2.0, 0.0, 0.0);
     let b = Vec3::new(-1.5, 0.0, 0.0);
@@ -37,6 +45,7 @@ fn main() {
 // Interval class.
 // Have to figure out normal vs back
 // Shaders
+// Fix moire patterns
 
 #[cfg(test)]
 mod tests {
