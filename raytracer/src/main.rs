@@ -18,24 +18,41 @@ use std::rc::Rc;
 fn main() {
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
-    camera.image_width = 1000;
-    camera.samples_per_pixel = 300;
-    camera.max_depth = 50;
+    camera.image_width = 400;
+    camera.samples_per_pixel = 100;
+    camera.max_depth = 10;
 
     let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
     let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
-    let material_right = Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8)));
+    let material_right = Rc::new(Lambertian::new(Vec3::new(0.1, 0.7, 0.5)));
+    let material_middle = Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8)));
+    let material_right_back = Rc::new(Metal::new(Vec3::new(0.5, 0.1, 0.1)));
 
 
     let mut world = World::new();
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, material_right)));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left)));
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -100.5, 0.0), 100.0, material_ground)));
+    // world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left))); // Left
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, material_middle))); // Middle
+    world.add_obj(Box::new(Sphere::new(Vec3::new(1.5, 0.0, 0.0), 0.5, material_right))); // Right
+    world.add_obj(Box::new(Sphere::new(Vec3::new(1.5, 1.5, -4.0), 2.0, material_right_back))); // Right Back
 
-    let a = Vec3::new(-2.0, 0.0, 0.0);
-    let b = Vec3::new(-1.5, 0.0, 0.0);
-    let c = Vec3::new(-1.25, 3.0, 0.0);
-    // world.add_obj(Box::new(Triangle::new(a, b, c, Vec3::new(1.0, 0.0, 1.0))));
+    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -260.5, 0.0), 260.0, material_ground)));
+
+
+    let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
+    let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
+    let material_right = Rc::new(Lambertian::new(Vec3::new(0.5, 0.2, 0.8)));
+    let a = Vec3::new(-2.0, -0.5, 1.0);
+    let b = Vec3::new(-1.0, -0.5, 1.0);
+    let c = Vec3::new(-1.5, 3.0, 0.5);
+    world.add_obj(Box::new(Triangle::new(a, b, c, material_left)));
+    let a = Vec3::new(-1.0, -0.5, 1.0);
+    let b = Vec3::new(-1.5, 3.0, 0.5);
+    let c = Vec3::new(-1.0, -0.5, -0.0);
+    world.add_obj(Box::new(Triangle::new(a, b, c, material_right)));
+    let a = Vec3::new(-2.0, -0.5, 1.0);
+    let b = Vec3::new(-1.5, 3.0, 0.5);
+    let c = Vec3::new(-1.0, -0.5, 0.0);
+    world.add_obj(Box::new(Triangle::new(a, b, c, material_ground)));
 
     camera.initialize();
     camera.animate(&world);

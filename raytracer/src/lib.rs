@@ -74,7 +74,7 @@ impl Camera {
     pub fn animate(&mut self, world: &World) {
         for i in 0..360 {
             println!("Angles remaining: {}", (360 - i));
-            let angle = deg2rad(i as f32);
+            let angle = -deg2rad(i as f32);
             self.rotate_y(angle);
 
             self.render_frame(world, i);
@@ -93,7 +93,7 @@ impl Camera {
         }
 
         for i in 0..self.image_height {
-            println!("Scanlines remaining: {}", (self.image_height as i32 - i));
+            // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
             for j in 0..self.image_width {
                 // Used later to average for antialiasing
                 let mut total_pixel_color = Vec3::ZERO;
@@ -153,7 +153,7 @@ pub fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
     }
 
     let mut hit_rec = HitRec::new();
-    if world.hit(ray, 0.0001, INFINITY, &mut hit_rec) { // Dec for anti-acne.   
+    if world.hit(ray, 0.001, INFINITY, &mut hit_rec) { // Dec for anti-acne.   
         // let c = (hit_rec.color + hit_rec.normal) * 0.5;
         // if c.x > 1.0 || c.y > 1.0 || c.z > 1.0 {
         //     return hit_rec.color;

@@ -139,11 +139,11 @@ pub struct Triangle {
     pub a: Vec3,
     pub b: Vec3, 
     pub c: Vec3,
-    color: Vec3,
+    pub mat: Rc<dyn Material>,
 }
 
 impl Triangle {
-    pub fn new(a: Vec3, b: Vec3, c: Vec3, color: Vec3) -> Self {
+    pub fn new(a: Vec3, b: Vec3, c: Vec3, mat: Rc<dyn Material>) -> Self {
         //
         //         c
         //         |
@@ -152,7 +152,7 @@ impl Triangle {
             a: a,
             b: b,
             c: c,
-            color: color,
+            mat: Rc::clone(&mat),
         }
     }
 }
@@ -216,6 +216,7 @@ impl Hittable for Triangle {
         rec.hit_p = P;
         let outward_normal = N;
         rec.set_face_normal(r, outward_normal);
+        rec.mat = Rc::clone(&self.mat);
 
         true
     }
