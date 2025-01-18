@@ -1,12 +1,19 @@
-# Raytracer in Rust...with some other stuff
+# Raytracer in Rust
 ![Screenshot 2025-01-17 181334](https://github.com/user-attachments/assets/8765761f-e6fa-482a-a848-6ca10aee75e7)
 Still trying to learn Rust and thought this would be a great way to crate (pun intended) stuff using
 Rust but also learn a bit more about graphics programming. Good portion of the work learned from 
 the classic [Raytracing In A Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) article.
 
-Currently, it works pretty decently as you can see from below, but obviously it barely has any shaders, it
-doesn't take lighting into effect. These will be worked on later. But this was supposed to be a very barebones 
-attempt to get Raytracing working with Rust.
+Currently, it works pretty well, as you can see from the above photo. We have our Spheres with both diffuse and
+metallic material, as well as the shadows underneath each. I have implemented the Triangle class and in a couple
+of the animations below I have shown them being rotated around, however I want to also apply those materials
+to the triangle to see how it turns out. 
+
+Additionally, it is very slow to write to ppms, so perhaps I'd like to take into account some degree of 
+asynchronous raytracing, where on writes, it could jump to another raytracing tasks. Another possibility
+is to have several threads where each thread handles a subset of pixels in the image and async program those 
+threads. Not suspecting any sort of race conditions because nothing is being mutated within the scene, but
+who knows.
 
 ## Features
 ### 3d Vectors (Vec 3)
