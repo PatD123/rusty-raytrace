@@ -79,4 +79,8 @@ https://github.com/user-attachments/assets/aa0447b1-71fc-43d8-b13b-1f3824d31ab5
 ![Screenshot 2025-01-17 162626](https://github.com/user-attachments/assets/96f8bfc4-644b-4593-8b47-850d6c129266)
 
 # Full
-![Screenshot 2025-01-17 181334](https://github.com/user-attachments/assets/8765761f-e6fa-482a-a848-6ca10aee75e7)
+Sphere Full (1000x562)             |  Sphere + Pyramid Full (1000x562)
+:-------------------------:|:-------------------------:
+![Screenshot 2025-01-17 181334](https://github.com/user-attachments/assets/8765761f-e6fa-482a-a848-6ca10aee75e7)  |  ![Screenshot 2025-01-18 132832](https://github.com/user-attachments/assets/d566ce82-a134-4d1c-ab5b-be774cf2b2fc)
+
+
