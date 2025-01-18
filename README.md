@@ -47,7 +47,12 @@ the best lighting to provide an explicit perspective. But it is rotating around 
 ### Shapes
 1. Spheres
 2. Triangles [ray-triangle insided-ness](https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/ray-triangle-intersection-geometric-solution.html)
-3. ..... (maybe I'll do more; we'll see)
+
+
+https://github.com/user-attachments/assets/361ead82-3aae-4eff-92b7-07c4f98eeaa7
+
+
+4. ..... (maybe I'll do more; we'll see)
 
 ## For Converting Lump PPM to MP4
 ````
