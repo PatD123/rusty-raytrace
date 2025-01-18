@@ -8,9 +8,6 @@ Sphere Full (1000x562)             |  Sphere + Pyramid Full (1000x562)
 https://github.com/user-attachments/assets/00677c01-979c-4b44-be94-6e1eff54ac57
 
 
-*400 x 225*
-
-
 Still trying to learn Rust and thought this would be a great way to crate (pun intended) stuff using
 Rust but also learn a bit more about graphics programming. Good portion of the work learned from 
 the classic [Raytracing In A Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) article.
@@ -26,7 +23,7 @@ is to have several threads where each thread handles a subset of pixels in the i
 threads. Not suspecting any sort of race conditions because nothing is being mutated within the scene, but
 who knows.
 
-Outside libs: File, Write, Rand
+Outside libs: ````File, Write, Rand.````
 
 ## Features
 ### 3d Vectors (Vec 3)
