@@ -9,7 +9,7 @@ use shapes::World;
 use shapes::Sphere;
 use shapes::Triangle;
 use raytracer::Camera;
-use materials::Lambertian;
+use materials::{Lambertian, Metal};
 
 use std::fs::File;
 use std::io::Write;
@@ -18,13 +18,13 @@ use std::rc::Rc;
 fn main() {
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
-    camera.image_width = 400;
-    camera.samples_per_pixel = 100;
-    camera.max_depth = 20;
+    camera.image_width = 1000;
+    camera.samples_per_pixel = 300;
+    camera.max_depth = 50;
 
     let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
     let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
-    let material_right = Rc::new(Lambertian::new(Vec3::new(0.6, 0.2, 0.5)));
+    let material_right = Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8)));
 
 
     let mut world = World::new();

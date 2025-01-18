@@ -2,6 +2,7 @@ use crate::Ray;
 use crate::HitRec;
 use crate::Vec3;
 use crate::random_vector;
+use crate::reflect_vector;
 
 // TODO
 // Make material trait
@@ -47,3 +48,30 @@ impl Material for Lambertian {
         true
     }
 }
+
+pub struct Metal {
+    pub albedo: Vec3,
+}
+
+impl Metal {
+    pub fn new(albedo: Vec3) -> Self {
+        Self {
+            albedo: albedo,
+        }
+    }
+}
+
+impl Material for Metal {
+    fn scatter(&self, r: &Ray, hit_rec: &HitRec, r_refl: &mut Ray, atten: &mut Vec3) -> bool {
+        
+        // Lambertian reflection
+        let refl = reflect_vector(r.dir, hit_rec.normal);
+        r_refl.o = hit_rec.hit_p;
+        r_refl.dir = refl;
+        *atten = self.albedo;
+        
+        true
+    }
+}
+
+
