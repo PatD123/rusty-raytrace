@@ -1,5 +1,9 @@
 # Raytracer in Rust
-![Screenshot 2025-01-17 181334](https://github.com/user-attachments/assets/8765761f-e6fa-482a-a848-6ca10aee75e7)
+
+
+https://github.com/user-attachments/assets/00677c01-979c-4b44-be94-6e1eff54ac57
+
+
 Still trying to learn Rust and thought this would be a great way to crate (pun intended) stuff using
 Rust but also learn a bit more about graphics programming. Good portion of the work learned from 
 the classic [Raytracing In A Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) article.
@@ -68,3 +72,6 @@ https://github.com/user-attachments/assets/aa0447b1-71fc-43d8-b13b-1f3824d31ab5
 6) Metallica
 
 ![Screenshot 2025-01-17 162626](https://github.com/user-attachments/assets/96f8bfc4-644b-4593-8b47-850d6c129266)
+
+# Full
+![Screenshot 2025-01-17 181334](https://github.com/user-attachments/assets/8765761f-e6fa-482a-a848-6ca10aee75e7)
