@@ -26,6 +26,8 @@ is to have several threads where each thread handles a subset of pixels in the i
 threads. Not suspecting any sort of race conditions because nothing is being mutated within the scene, but
 who knows.
 
+Outside libs: File, Write, Rand
+
 ## Features
 ### 3d Vectors (Vec 3)
 Support for basic vector implementations, including dot product, cross product, rotations (just used for 
