@@ -13,6 +13,7 @@ use materials::{Material, Lambertian};
 use std::fs::File;
 use std::io::Write;
 use rand::Rng;
+use std::thread;
 
 pub const INFINITY: f32 = f32::INFINITY;
 const ORIGIN: Vec3 = Vec3::ZERO;
@@ -91,6 +92,10 @@ impl Camera {
         for s in buf.iter() {
             f.write(s.as_bytes());
         }
+
+        // TODO
+        // Just try out some threading right here and then steadily build it up to tracing
+        // all the rays.
 
         for i in 0..self.image_height {
             // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
