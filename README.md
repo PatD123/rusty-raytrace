@@ -5,7 +5,9 @@ Sphere Full (1000x562)             |  Sphere + Pyramid Full (1000x562)
 ![Screenshot 2025-01-17 181334](https://github.com/user-attachments/assets/8765761f-e6fa-482a-a848-6ca10aee75e7)  |  ![Screenshot 2025-01-18 132832](https://github.com/user-attachments/assets/d566ce82-a134-4d1c-ab5b-be774cf2b2fc)
 
 
-https://github.com/user-attachments/assets/00677c01-979c-4b44-be94-6e1eff54ac57
+
+https://github.com/user-attachments/assets/1fae9685-007d-4c34-88c3-e63e5c9a1430
+
 
 
 Still trying to learn Rust and thought this would be a great way to crate (pun intended) stuff using
