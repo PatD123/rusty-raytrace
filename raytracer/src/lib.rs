@@ -73,7 +73,7 @@ impl Camera {
     }
 
     pub fn animate(&mut self, world: &World) {
-        for i in 0..360 {
+        for i in 24..360 {
             println!("Angles remaining: {}", (360 - i));
             let angle = -deg2rad(i as f32);
             self.rotate_y(angle);

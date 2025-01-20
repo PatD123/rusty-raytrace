@@ -18,9 +18,9 @@ use std::rc::Rc;
 fn main() {
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
-    camera.image_width = 400;
-    camera.samples_per_pixel = 100;
-    camera.max_depth = 10;
+    camera.image_width = 1000;
+    camera.samples_per_pixel = 500;
+    camera.max_depth = 50;
 
     let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
     let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
@@ -59,10 +59,8 @@ fn main() {
 }
 
 // TODO
-// Interval class.
-// Have to figure out normal vs back
-// Shaders
-// Fix moire patterns
+// Look at RAYON
+// Look at SIMD
 
 #[cfg(test)]
 mod tests {
