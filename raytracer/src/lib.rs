@@ -80,6 +80,8 @@ impl Camera {
             self.render_frame(world, i);
 
             self.rotate_y(-angle);
+
+            break;
         }
     }
 
