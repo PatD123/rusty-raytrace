@@ -15,6 +15,7 @@ use std::io::Write;
 use rand::Rng;
 use std::thread;
 use std::sync::Arc;
+use std::sync::Mutex;
 
 pub const INFINITY: f32 = f32::INFINITY;
 const ORIGIN: Vec3 = Vec3::ZERO;
@@ -89,18 +90,13 @@ impl Camera {
             cam.render_frame(w, i);
 
             self.rotate_y(-angle);
+
+            break;
         }
     }
 
     pub fn render_frame(self: Arc<Self>, world: Arc<World>, frame_id: i32) {
         // Render
-        let nm = format!("testing/output{:03}.ppm", frame_id);
-        let mut f = File::create(nm).expect("Couldn't create file!");
-        let buf = ["P3\n", &self.image_width.to_string(), &format!(" {}\n", self.image_height.to_string()), "255\n"];
-        for s in buf.iter() {
-            f.write(s.as_bytes());
-        }
-        let f = Arc::new(f);
 
         // TODO
         // Just try out some threading right here and then steadily build it up to tracing
@@ -108,12 +104,14 @@ impl Camera {
         let num_threads = 3;
         let mut handles: Vec<thread::JoinHandle<()>> = vec![];
 
+        let mut buf = Arc::new(Mutex::new(vec![vec![Vec3::ZERO; self.image_width as usize]; self.image_height as usize]));
+
         // Deploy all threads.
         for thread_i in 0..num_threads {
             // Make more references to shared data
             let cam = Arc::clone(&self);
             let w = Arc::clone(&world);
-            let f = Arc::clone(&f);
+            let write_buf = Arc::clone(&buf);
 
             // Chunkify scanlines per thread
             let start = thread_i * cam.image_height / num_threads;
@@ -127,6 +125,7 @@ impl Camera {
             let handle = thread::spawn(move || {
                 for i in start..end {
                     // println!("Scanlines remaining: {}", (cam.image_height as i32 - i));
+                    let mut scnl: Vec<Vec3> = vec![];
                     for j in 0..cam.image_width {
                         // Used later to average for antialiasing
                         let mut total_pixel_color = Vec3::ZERO;
@@ -138,8 +137,15 @@ impl Camera {
                         }
 
                         total_pixel_color /= cam.samples_per_pixel as f32; 
+                        
+                        // write_color(&f, &total_pixel_color);
+                        // write_buf[i as usize][j as usize] = total_pixel_color; 
+                        scnl.push(total_pixel_color);
+                    }
 
-                        write_color(&f, &total_pixel_color);
+                    let mut b = write_buf.lock().unwrap();
+                    if let Some(r) = b.get_mut(i as usize) {
+                        *r = scnl;
                     }
                 }
             });
@@ -147,6 +153,23 @@ impl Camera {
         }
 
         // Join all threads.
+        for handle in handles {
+            handle.join().unwrap();
+        }
+
+        // Write to buf now.
+        let nm = format!("testing/output{:03}.ppm", frame_id);
+        let mut f = File::create(nm).expect("Couldn't create file!");
+        let temp = ["P3\n", &self.image_width.to_string(), &format!(" {}\n", self.image_height.to_string()), "255\n"];
+        for s in temp.iter() {
+            f.write(s.as_bytes());
+        }
+        let buf = buf.lock().unwrap();
+        for i in 0..self.image_height {
+            for j in 0..self.image_width {
+                write_color(&f, buf[i as usize][j as usize]);
+            }
+        }        
     }
 
     fn get_ray(self: &Arc<Self>, i: f32, j: f32) -> Ray {
@@ -171,7 +194,7 @@ impl Camera {
     }
 }
 
-pub fn write_color(mut f: &File, color: &Vec3) {
+pub fn write_color(mut f: &File, color: Vec3) {
     let r = color.x;
     let g = color.y;
     let b = color.z;

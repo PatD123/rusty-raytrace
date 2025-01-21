@@ -32,12 +32,12 @@ fn main() {
 
 
     let mut world = World::new();
-    // world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left))); // Left
+    world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left))))); // Left
     world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, material_middle))))); // Middle
-    // world.add_obj(Box::new(Sphere::new(Vec3::new(1.5, 0.0, 0.0), 0.5, material_right))); // Right
-    // world.add_obj(Box::new(Sphere::new(Vec3::new(1.5, 1.5, -4.0), 2.0, material_right_back))); // Right Back
+    world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(1.5, 0.0, 0.0), 0.5, material_right))))); // Right
+    world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(1.5, 1.5, -4.0), 2.0, material_right_back))))); // Right Back
 
-    // world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -260.5, 0.0), 260.0, material_ground)));
+    world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(0.0, -260.5, 0.0), 260.0, material_ground)))));
 
 
     // let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
