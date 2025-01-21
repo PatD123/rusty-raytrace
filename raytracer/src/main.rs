@@ -32,7 +32,7 @@ fn main() {
 
 
     let mut world = World::new();
-    world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left))))); // Left
+    // world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left))))); // Left
     world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, material_middle))))); // Middle
     world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(1.5, 0.0, 0.0), 0.5, material_right))))); // Right
     world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(1.5, 1.5, -4.0), 2.0, material_right_back))))); // Right Back
@@ -40,21 +40,21 @@ fn main() {
     world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(0.0, -260.5, 0.0), 260.0, material_ground)))));
 
 
-    // let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
-    // let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
-    // let material_right = Rc::new(Lambertian::new(Vec3::new(0.5, 0.2, 0.8)));
-    // let a = Vec3::new(-2.0, -0.5, 1.0);
-    // let b = Vec3::new(-1.0, -0.5, 1.0);
-    // let c = Vec3::new(-1.5, 3.0, 0.5);
-    // world.add_obj(Box::new(Triangle::new(a, b, c, material_left)));
-    // let a = Vec3::new(-1.0, -0.5, 1.0);
-    // let b = Vec3::new(-1.5, 3.0, 0.5);
-    // let c = Vec3::new(-1.0, -0.5, -0.0);
-    // world.add_obj(Box::new(Triangle::new(a, b, c, material_right)));
-    // let a = Vec3::new(-2.0, -0.5, 1.0);
-    // let b = Vec3::new(-1.5, 3.0, 0.5);
-    // let c = Vec3::new(-1.0, -0.5, 0.0);
-    // world.add_obj(Box::new(Triangle::new(a, b, c, material_ground)));
+    let material_ground = Arc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
+    let material_left = Arc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
+    let material_right = Arc::new(Lambertian::new(Vec3::new(0.5, 0.2, 0.8)));
+    let a = Vec3::new(-2.0, -0.5, 1.0);
+    let b = Vec3::new(-1.0, -0.5, 1.0);
+    let c = Vec3::new(-1.5, 3.0, 0.5);
+    world.add_obj(Arc::new(Mutex::new(Box::new(Triangle::new(a, b, c, material_left)))));
+    let a = Vec3::new(-1.0, -0.5, 1.0);
+    let b = Vec3::new(-1.5, 3.0, 0.5);
+    let c = Vec3::new(-1.0, -0.5, -0.0);
+    world.add_obj(Arc::new(Mutex::new(Box::new(Triangle::new(a, b, c, material_right)))));
+    let a = Vec3::new(-2.0, -0.5, 1.0);
+    let b = Vec3::new(-1.5, 3.0, 0.5);
+    let c = Vec3::new(-1.0, -0.5, 0.0);
+    world.add_obj(Arc::new(Mutex::new(Box::new(Triangle::new(a, b, c, material_ground)))));
 
     camera.initialize();
     camera.animate(world);
