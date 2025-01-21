@@ -100,6 +100,7 @@ impl Camera {
         for s in buf.iter() {
             f.write(s.as_bytes());
         }
+        let f = Arc::new(f);
 
         // TODO
         // Just try out some threading right here and then steadily build it up to tracing
@@ -112,6 +113,7 @@ impl Camera {
             // Make more references to shared data
             let cam = Arc::clone(&self);
             let w = Arc::clone(&world);
+            let f = Arc::clone(&f);
 
             // Chunkify scanlines per thread
             let start = thread_i * cam.image_height / num_threads;
@@ -137,7 +139,7 @@ impl Camera {
 
                         total_pixel_color /= cam.samples_per_pixel as f32; 
 
-                        // write_color(&f, &total_pixel_color);
+                        write_color(&f, &total_pixel_color);
                     }
                 }
             });
