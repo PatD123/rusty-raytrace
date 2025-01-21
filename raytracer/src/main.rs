@@ -14,13 +14,14 @@ use materials::{Lambertian, Metal};
 use std::fs::File;
 use std::io::Write;
 use std::rc::Rc;
+use std::sync::Arc;
 
 fn main() {
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
-    camera.image_width = 1000;
-    camera.samples_per_pixel = 500;
-    camera.max_depth = 50;
+    camera.image_width = 400;
+    camera.samples_per_pixel = 100;
+    camera.max_depth = 10;
 
     let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
     let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
@@ -61,6 +62,10 @@ fn main() {
 // TODO
 // Look at RAYON
 // Look at SIMD
+
+// Multithreading
+// All the Rc should be Arcs
+// Implement send and sync for shapes and shit.
 
 #[cfg(test)]
 mod tests {

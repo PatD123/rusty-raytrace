@@ -14,11 +14,13 @@ use std::fs::File;
 use std::io::Write;
 use rand::Rng;
 use std::thread;
+use std::sync::Arc;
 
 pub const INFINITY: f32 = f32::INFINITY;
 const ORIGIN: Vec3 = Vec3::ZERO;
 const MAX_DEPTH: i32 = 10;
 
+#[derive(Debug, Copy, Clone)]
 pub struct Camera {
     pub aspect_ratio: f32,
     pub image_width: i32,
@@ -72,19 +74,21 @@ impl Camera {
         self.pixel_upper_left = viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5;
     }
 
-    pub fn animate(&mut self, world: &World) {
-        for i in 24..360 {
+    pub fn animate(mut self, world: &World) {
+        for i in 0..360 {
             println!("Angles remaining: {}", (360 - i));
             let angle = -deg2rad(i as f32);
             self.rotate_y(angle);
 
-            self.render_frame(world, i);
+            // We now have two pointers pointing to the same Camera
+            let cam = Arc::new(self.clone());
+            cam.render_frame(world, i);
 
             self.rotate_y(-angle);
         }
     }
 
-    pub fn render_frame(&mut self, world: &World, frame_id: i32) {
+    pub fn render_frame(self: Arc<Self>, world: &World, frame_id: i32) {
         // Render
         let nm = format!("testing/output{:03}.ppm", frame_id);
         let mut f = File::create(nm).expect("Couldn't create file!");
@@ -96,27 +100,36 @@ impl Camera {
         // TODO
         // Just try out some threading right here and then steadily build it up to tracing
         // all the rays.
+        let num_threads = 3;
+        let mut handles: Vec<thread::JoinHandle<()>> = vec![];
 
-        for i in 0..self.image_height {
-            // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
-            for j in 0..self.image_width {
-                // Used later to average for antialiasing
-                let mut total_pixel_color = Vec3::ZERO;
-
-                for k in 0..self.samples_per_pixel {
-                    let r = self.get_ray(i as f32, j as f32);
-                    let pixel_color = ray_color(&r, &world, MAX_DEPTH);
-                    total_pixel_color += pixel_color;
-                }
-
-                total_pixel_color /= self.samples_per_pixel as f32; 
-
-                write_color(&f, &total_pixel_color);
-            }
+        for thread_i in 0..num_threads {
+            let cam = Arc::clone(&self);
+            let handle = thread::spawn(move || {
+                println!("{}", cam.image_height);
+            });
         }
+
+        // for i in 0..self.image_height {
+        //     // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
+        //     for j in 0..self.image_width {
+        //         // Used later to average for antialiasing
+        //         let mut total_pixel_color = Vec3::ZERO;
+
+        //         for k in 0..self.samples_per_pixel {
+        //             let r = self.get_ray(i as f32, j as f32);
+        //             let pixel_color = ray_color(&r, &world, MAX_DEPTH);
+        //             total_pixel_color += pixel_color;
+        //         }
+
+        //         total_pixel_color /= self.samples_per_pixel as f32; 
+
+        //         write_color(&f, &total_pixel_color);
+        //     }
+        // }
     }
 
-    fn get_ray(&self, i: f32, j: f32) -> Ray {
+    fn get_ray(self: Arc<Self>, i: f32, j: f32) -> Ray {
         // Prolly should get a random x and random y offset
         let sampled_square_delta = sample_square();
 
