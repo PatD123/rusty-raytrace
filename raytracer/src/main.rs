@@ -16,13 +16,14 @@ use std::io::Write;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::time::{Duration, SystemTime};
 
 fn main() {
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
-    camera.image_width = 400;
-    camera.samples_per_pixel = 100;
-    camera.max_depth = 10;
+    camera.image_width = 1000;
+    camera.samples_per_pixel = 500;
+    camera.max_depth = 50;
 
     let material_ground = Arc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
     let material_left = Arc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
@@ -57,7 +58,17 @@ fn main() {
     world.add_obj(Arc::new(Mutex::new(Box::new(Triangle::new(a, b, c, material_ground)))));
 
     camera.initialize();
+
+    let now = SystemTime::now();
     camera.animate(world);
+    match now.elapsed() {
+       Ok(elapsed) => {
+           println!("{}", elapsed.as_secs());
+       }
+       Err(e) => {
+           println!("Error: {e:?}");
+       }
+    }
 }
 
 // TODO
