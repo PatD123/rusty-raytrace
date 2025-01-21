@@ -8,8 +8,10 @@ use std::fs::File;
 use std::io::Write;
 use std::vec;
 use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::Mutex;
 
-pub trait Hittable {
+pub trait Hittable:std::marker::Send + std::marker::Sync {
     fn hit(&self, r: &Ray, tmin: f32, tmax: f32, hit_rec: &mut HitRec) -> bool;
 }
 
@@ -18,7 +20,7 @@ pub struct HitRec {
     pub normal: Vec3,
     pub t: f32,
     pub front_face: bool,
-    pub mat: Rc<dyn Material>,
+    pub mat: Arc<dyn Material>,
 }
 
 impl HitRec {
@@ -28,7 +30,7 @@ impl HitRec {
             normal: Vec3::ZERO,
             t: 0.0,
             front_face: true,
-            mat: Rc::new(Lambertian::new(Vec3::ZERO)),
+            mat: Arc::new(Lambertian::new(Vec3::ZERO)),
         }
     }
 
@@ -45,8 +47,21 @@ impl HitRec {
 
 }
 
+// SO really at this moment we have a pretty big issue with World. Besides our 
+// shared camera that I just fixed, our World is the only other shared piece of memory
+
+// Issue here is that because this World is shared, it not only has to Arc'd because
+// it has to be shared across multiple threads (World and all the objects within can
+// have multiple owners), but also they have to be mutexed bc only one thread can have
+// access at a time ==> The vector objs in World --> Vec<Arc<Mutex<Box<Hittable>>>>
+
+// Mutex auto makes things Sync.
+
+// When you are going through the hit function in World, lock(), unwrap(), then hit as
+// usual.
+
 pub struct World {
-    objs: Vec<Box<dyn Hittable>>,
+    objs: Vec<Arc<Mutex<Box<dyn Hittable>>>>,
 }
 
 impl World {
@@ -56,7 +71,7 @@ impl World {
         }
     }
 
-    pub fn add_obj(&mut self, obj: Box<dyn Hittable>) {
+    pub fn add_obj(&mut self, obj: Arc<Mutex<Box<dyn Hittable>>>) {
         self.objs.push(obj);
     }
 }
@@ -69,6 +84,9 @@ impl Hittable for World {
         
         // Loop through all world objects
         for (i, obj) in self.objs.iter().enumerate() {
+            // Unwrap the Arc'd Mutex'd object.
+            let obj = obj.lock().unwrap();
+
             // Have each object be hit (if it can get hit by ray)
             if obj.hit(r, tmin, closest, &mut temp_rec) {
                 flag = true;
@@ -81,7 +99,7 @@ impl Hittable for World {
         hit_rec.normal = temp_rec.normal;
         hit_rec.t = temp_rec.t;
         hit_rec.front_face = temp_rec.front_face;
-        hit_rec.mat = Rc::clone(&temp_rec.mat);
+        hit_rec.mat = Arc::clone(&temp_rec.mat);
 
         return flag;
     }
@@ -90,15 +108,15 @@ impl Hittable for World {
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    pub mat: Rc<dyn Material>, // Has a material that is a smort pointer to anything that implements a material.
+    pub mat: Arc<dyn Material>, // Has a material that is a smort pointer to anything that implements a material.
 }
 
 impl Sphere {
-    pub fn new(sphere_center: Vec3, radius: f32, mat: Rc<dyn Material>) -> Self {
+    pub fn new(sphere_center: Vec3, radius: f32, mat: Arc<dyn Material>) -> Self {
         Self {
             center: sphere_center,
             radius: radius,
-            mat: Rc::clone(&mat),
+            mat: Arc::clone(&mat),
         }
     }
 }
@@ -129,7 +147,7 @@ impl Hittable for Sphere {
         rec.hit_p = r.at(root);
         let outward_normal = (rec.hit_p - self.center) / self.radius;
         rec.set_face_normal(r, outward_normal);
-        rec.mat = Rc::clone(&self.mat);
+        rec.mat = Arc::clone(&self.mat);
 
         true
     }
@@ -139,11 +157,11 @@ pub struct Triangle {
     pub a: Vec3,
     pub b: Vec3, 
     pub c: Vec3,
-    pub mat: Rc<dyn Material>,
+    pub mat: Arc<dyn Material>,
 }
 
 impl Triangle {
-    pub fn new(a: Vec3, b: Vec3, c: Vec3, mat: Rc<dyn Material>) -> Self {
+    pub fn new(a: Vec3, b: Vec3, c: Vec3, mat: Arc<dyn Material>) -> Self {
         //
         //         c
         //         |
@@ -152,7 +170,7 @@ impl Triangle {
             a: a,
             b: b,
             c: c,
-            mat: Rc::clone(&mat),
+            mat: Arc::clone(&mat),
         }
     }
 }
@@ -216,7 +234,7 @@ impl Hittable for Triangle {
         rec.hit_p = P;
         let outward_normal = N;
         rec.set_face_normal(r, outward_normal);
-        rec.mat = Rc::clone(&self.mat);
+        rec.mat = Arc::clone(&self.mat);
 
         true
     }

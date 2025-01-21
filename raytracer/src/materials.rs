@@ -19,7 +19,7 @@ use crate::reflect_vector;
 // 
 // 
 
-pub trait Material {
+pub trait Material: std::marker::Send + std::marker::Sync {
     fn scatter(&self, r: &Ray, hit_rec: &HitRec, r_scat: &mut Ray, atten: &mut Vec3) -> bool;
 }
 

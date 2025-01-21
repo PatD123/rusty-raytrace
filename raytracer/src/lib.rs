@@ -74,7 +74,10 @@ impl Camera {
         self.pixel_upper_left = viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5;
     }
 
-    pub fn animate(mut self, world: &World) {
+    pub fn animate(mut self, world: World) {
+        // Arc World because it is shared.
+        let world = Arc::new(world);
+
         for i in 0..360 {
             println!("Angles remaining: {}", (360 - i));
             let angle = -deg2rad(i as f32);
@@ -82,13 +85,14 @@ impl Camera {
 
             // We now have two pointers pointing to the same Camera
             let cam = Arc::new(self.clone());
-            cam.render_frame(world, i);
+            let w = Arc::clone(&world);
+            cam.render_frame(w, i);
 
             self.rotate_y(-angle);
         }
     }
 
-    pub fn render_frame(self: Arc<Self>, world: &World, frame_id: i32) {
+    pub fn render_frame(self: Arc<Self>, world: Arc<World>, frame_id: i32) {
         // Render
         let nm = format!("testing/output{:03}.ppm", frame_id);
         let mut f = File::create(nm).expect("Couldn't create file!");
@@ -103,33 +107,47 @@ impl Camera {
         let num_threads = 3;
         let mut handles: Vec<thread::JoinHandle<()>> = vec![];
 
+        // Deploy all threads.
         for thread_i in 0..num_threads {
+            // Make more references to shared data
             let cam = Arc::clone(&self);
+            let w = Arc::clone(&world);
+
+            // Chunkify scanlines per thread
+            let start = thread_i * cam.image_height / num_threads;
+            let end = if thread_i == num_threads - 1 {
+                cam.image_height
+            }
+            else {
+                (thread_i + 1) * cam.image_height / num_threads
+            };
+
             let handle = thread::spawn(move || {
-                println!("{}", cam.image_height);
+                for i in start..end {
+                    // println!("Scanlines remaining: {}", (cam.image_height as i32 - i));
+                    for j in 0..cam.image_width {
+                        // Used later to average for antialiasing
+                        let mut total_pixel_color = Vec3::ZERO;
+
+                        for _ in 0..cam.samples_per_pixel {
+                            let r = cam.get_ray(i as f32, j as f32);
+                            let pixel_color = ray_color(&r, &w, MAX_DEPTH);
+                            total_pixel_color += pixel_color;
+                        }
+
+                        total_pixel_color /= cam.samples_per_pixel as f32; 
+
+                        // write_color(&f, &total_pixel_color);
+                    }
+                }
             });
+            handles.push(handle);
         }
 
-        // for i in 0..self.image_height {
-        //     // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
-        //     for j in 0..self.image_width {
-        //         // Used later to average for antialiasing
-        //         let mut total_pixel_color = Vec3::ZERO;
-
-        //         for k in 0..self.samples_per_pixel {
-        //             let r = self.get_ray(i as f32, j as f32);
-        //             let pixel_color = ray_color(&r, &world, MAX_DEPTH);
-        //             total_pixel_color += pixel_color;
-        //         }
-
-        //         total_pixel_color /= self.samples_per_pixel as f32; 
-
-        //         write_color(&f, &total_pixel_color);
-        //     }
-        // }
+        // Join all threads.
     }
 
-    fn get_ray(self: Arc<Self>, i: f32, j: f32) -> Ray {
+    fn get_ray(self: &Arc<Self>, i: f32, j: f32) -> Ray {
         // Prolly should get a random x and random y offset
         let sampled_square_delta = sample_square();
 
@@ -165,7 +183,7 @@ pub fn write_color(mut f: &File, color: &Vec3) {
     f.write(bbyte.to_string().as_bytes()); f.write("\n".as_bytes());
 }
 
-pub fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
+pub fn ray_color(ray: &Ray, world: &Arc<World>, depth: i32) -> Vec3 {
     if depth <= 0 {
         return Vec3::ONE;
     }
