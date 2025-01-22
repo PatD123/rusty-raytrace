@@ -14,6 +14,8 @@ use materials::{Lambertian, Metal};
 use std::fs::File;
 use std::io::Write;
 use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::Mutex;
 use std::time::{Duration, SystemTime};
 
 fn main() {
@@ -23,42 +25,42 @@ fn main() {
     camera.samples_per_pixel = 500;
     camera.max_depth = 50;
 
-    let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
-    let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
-    let material_right = Rc::new(Lambertian::new(Vec3::new(0.1, 0.7, 0.5)));
-    let material_middle = Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8)));
-    let material_right_back = Rc::new(Metal::new(Vec3::new(0.5, 0.1, 0.1)));
+    let material_ground = Arc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
+    let material_left = Arc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
+    let material_right = Arc::new(Lambertian::new(Vec3::new(0.1, 0.7, 0.5)));
+    let material_middle = Arc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8)));
+    let material_right_back = Arc::new(Metal::new(Vec3::new(0.5, 0.1, 0.1)));
 
 
     let mut world = World::new();
-    // world.add_obj(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left))); // Left
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, material_middle))); // Middle
-    world.add_obj(Box::new(Sphere::new(Vec3::new(1.5, 0.0, 0.0), 0.5, material_right))); // Right
-    world.add_obj(Box::new(Sphere::new(Vec3::new(1.5, 1.5, -4.0), 2.0, material_right_back))); // Right Back
+    // world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, 1.0), 0.5, material_left))))); // Left
+    world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5, material_middle))))); // Middle
+    world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(1.5, 0.0, 0.0), 0.5, material_right))))); // Right
+    world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(1.5, 1.5, -4.0), 2.0, material_right_back))))); // Right Back
 
-    world.add_obj(Box::new(Sphere::new(Vec3::new(0.0, -260.5, 0.0), 260.0, material_ground)));
+    world.add_obj(Arc::new(Mutex::new(Box::new(Sphere::new(Vec3::new(0.0, -260.5, 0.0), 260.0, material_ground)))));
 
 
-    let material_ground = Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
-    let material_left = Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
-    let material_right = Rc::new(Lambertian::new(Vec3::new(0.5, 0.2, 0.8)));
+    let material_ground = Arc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
+    let material_left = Arc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5)));
+    let material_right = Arc::new(Lambertian::new(Vec3::new(0.5, 0.2, 0.8)));
     let a = Vec3::new(-2.0, -0.5, 1.0);
     let b = Vec3::new(-1.0, -0.5, 1.0);
     let c = Vec3::new(-1.5, 3.0, 0.5);
-    world.add_obj(Box::new(Triangle::new(a, b, c, material_left)));
+    world.add_obj(Arc::new(Mutex::new(Box::new(Triangle::new(a, b, c, material_left)))));
     let a = Vec3::new(-1.0, -0.5, 1.0);
     let b = Vec3::new(-1.5, 3.0, 0.5);
     let c = Vec3::new(-1.0, -0.5, -0.0);
-    world.add_obj(Box::new(Triangle::new(a, b, c, material_right)));
+    world.add_obj(Arc::new(Mutex::new(Box::new(Triangle::new(a, b, c, material_right)))));
     let a = Vec3::new(-2.0, -0.5, 1.0);
     let b = Vec3::new(-1.5, 3.0, 0.5);
     let c = Vec3::new(-1.0, -0.5, 0.0);
-    world.add_obj(Box::new(Triangle::new(a, b, c, material_ground)));
+    world.add_obj(Arc::new(Mutex::new(Box::new(Triangle::new(a, b, c, material_ground)))));
 
     camera.initialize();
 
     let now = SystemTime::now();
-    camera.animate(&world);
+    camera.animate(world);
     match now.elapsed() {
        Ok(elapsed) => {
            println!("{}", elapsed.as_secs());
@@ -70,10 +72,12 @@ fn main() {
 }
 
 // TODO
-// Interval class.
-// Have to figure out normal vs back
-// Shaders
-// Fix moire patterns
+// Look at RAYON
+// Look at SIMD
+
+// Multithreading
+// All the Rc should be Arcs
+// Implement send and sync for shapes and shit.
 
 #[cfg(test)]
 mod tests {

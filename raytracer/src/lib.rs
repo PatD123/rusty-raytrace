@@ -11,13 +11,18 @@ use shapes::Hittable;
 use materials::{Material, Lambertian};
 
 use std::fs::File;
+use std::io::BufWriter;
 use std::io::Write;
 use rand::Rng;
+use std::thread;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 pub const INFINITY: f32 = f32::INFINITY;
 const ORIGIN: Vec3 = Vec3::ZERO;
 const MAX_DEPTH: i32 = 10;
 
+#[derive(Debug, Copy, Clone)]
 pub struct Camera {
     pub aspect_ratio: f32,
     pub image_width: i32,
@@ -71,47 +76,110 @@ impl Camera {
         self.pixel_upper_left = viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5;
     }
 
-    pub fn animate(&mut self, world: &World) {
+    pub fn animate(mut self, world: World) {
+        // Arc World because it is shared.
+        let world = Arc::new(world);
+
         for i in 0..360 {
             println!("Angles remaining: {}", (360 - i));
             let angle = -deg2rad(i as f32);
             self.rotate_y(angle);
 
-            self.render_frame(world, i);
+            // We now have two pointers pointing to the same Camera.
+            let cam = Arc::new(self.clone());
+            // World is also shared.
+            let w = Arc::clone(&world);
+
+            // Render with new cloned camera.
+            cam.render_frame(w, i);
 
             self.rotate_y(-angle);
+
+            break;
         }
     }
 
-    pub fn render_frame(&mut self, world: &World, frame_id: i32) {
+    // Cam itself is shared so we use Arc on self.
+    pub fn render_frame(self: Arc<Self>, world: Arc<World>, frame_id: i32) {
         // Render
-        let nm = format!("testing/output{:03}.ppm", frame_id);
-        let mut f = File::create(nm).expect("Couldn't create file!");
-        let buf = ["P3\n", &self.image_width.to_string(), &format!(" {}\n", self.image_height.to_string()), "255\n"];
-        for s in buf.iter() {
-            f.write(s.as_bytes());
-        }
 
-        for i in 0..self.image_height {
-            // println!("Scanlines remaining: {}", (self.image_height as i32 - i));
-            for j in 0..self.image_width {
-                // Used later to average for antialiasing
-                let mut total_pixel_color = Vec3::ZERO;
+        let num_threads = 3;
+        let mut handles: Vec<thread::JoinHandle<()>> = vec![];
 
-                for k in 0..self.samples_per_pixel {
-                    let r = self.get_ray(i as f32, j as f32);
-                    let pixel_color = ray_color(&r, &world, MAX_DEPTH);
-                    total_pixel_color += pixel_color;
-                }
+        // Arc for usage across threads. Mutex for Sync (mutating in multiple threads).
+        let mut buf = Arc::new(Mutex::new(vec![vec![Vec3::ZERO; self.image_width as usize]; self.image_height as usize]));
 
-                total_pixel_color /= self.samples_per_pixel as f32; 
+        // Deploy all threads.
+        for thread_i in 0..num_threads {
+            // Make more references to shared data
+            let cam = Arc::clone(&self);
+            let w = Arc::clone(&world);
+            let write_buf = Arc::clone(&buf);
 
-                write_color(&f, &total_pixel_color);
+            // Chunkify scanlines per thread
+            let start = thread_i * cam.image_height / num_threads;
+            let end = if thread_i == num_threads - 1 {
+                cam.image_height
             }
+            else {
+                (thread_i + 1) * cam.image_height / num_threads
+            };
+
+            // Create the thread.
+            let handle = thread::spawn(move || {
+                for i in start..end {
+                    // println!("Scanlines remaining: {}", (cam.image_height as i32 - i));
+                    let mut scnl: Vec<Vec3> = vec![];
+                    for j in 0..cam.image_width {
+
+                        // Used later to average for antialiasing
+                        let mut total_pixel_color = Vec3::ZERO;
+
+                        for _ in 0..cam.samples_per_pixel {
+                            let r = cam.get_ray(i as f32, j as f32);
+                            let pixel_color = ray_color(&r, &w, MAX_DEPTH);
+                            total_pixel_color += pixel_color;
+                        }
+
+                        total_pixel_color /= cam.samples_per_pixel as f32; 
+                        
+                        // Push the resulting color into the current scanline.
+                        scnl.push(total_pixel_color);
+                    }
+
+                    let mut b = write_buf.lock().unwrap();
+                    if let Some(r) = b.get_mut(i as usize) {
+                        *r = scnl;
+                    }
+                }
+            });
+
+            // Have to join all threads later.
+            handles.push(handle);
         }
+
+        // Join all threads.
+        for handle in handles {
+            handle.join().unwrap();
+        }
+
+        // Write to buf now.
+        let nm = format!("testing/output{:03}.ppm", frame_id);
+        let f = File::create(nm).expect("Couldn't create file!");
+        let mut bw = BufWriter::new(f);
+        let temp = ["P3\n", &self.image_width.to_string(), &format!(" {}\n", self.image_height.to_string()), "255\n"];
+        for s in temp.iter() {
+            bw.write(s.as_bytes());
+        }
+        let buf = buf.lock().unwrap();
+        for i in 0..self.image_height {
+            for j in 0..self.image_width {
+                write_color(&mut bw, buf[i as usize][j as usize]);
+            }
+        }        
     }
 
-    fn get_ray(&self, i: f32, j: f32) -> Ray {
+    fn get_ray(self: &Arc<Self>, i: f32, j: f32) -> Ray {
         // Prolly should get a random x and random y offset
         let sampled_square_delta = sample_square();
 
@@ -133,7 +201,7 @@ impl Camera {
     }
 }
 
-pub fn write_color(mut f: &File, color: &Vec3) {
+pub fn write_color(f: &mut BufWriter<File>, color: Vec3) {
     let r = color.x;
     let g = color.y;
     let b = color.z;
@@ -142,12 +210,14 @@ pub fn write_color(mut f: &File, color: &Vec3) {
     let gbyte = (255.999 * g) as i32;
     let bbyte = (255.999 * b) as i32;
 
+    // Bufwriter here should make it faster.
+
     f.write(rbyte.to_string().as_bytes()); f.write(" ".as_bytes());
     f.write(gbyte.to_string().as_bytes()); f.write(" ".as_bytes());
     f.write(bbyte.to_string().as_bytes()); f.write("\n".as_bytes());
 }
 
-pub fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
+pub fn ray_color(ray: &Ray, world: &Arc<World>, depth: i32) -> Vec3 {
     if depth <= 0 {
         return Vec3::ONE;
     }
