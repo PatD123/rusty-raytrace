@@ -11,6 +11,7 @@ use shapes::Hittable;
 use materials::{Material, Lambertian};
 
 use std::fs::File;
+use std::io::BufWriter;
 use std::io::Write;
 use rand::Rng;
 use std::thread;
@@ -164,15 +165,16 @@ impl Camera {
 
         // Write to buf now.
         let nm = format!("testing/output{:03}.ppm", frame_id);
-        let mut f = File::create(nm).expect("Couldn't create file!");
+        let f = File::create(nm).expect("Couldn't create file!");
+        let mut bw = BufWriter::new(f);
         let temp = ["P3\n", &self.image_width.to_string(), &format!(" {}\n", self.image_height.to_string()), "255\n"];
         for s in temp.iter() {
-            f.write(s.as_bytes());
+            bw.write(s.as_bytes());
         }
         let buf = buf.lock().unwrap();
         for i in 0..self.image_height {
             for j in 0..self.image_width {
-                write_color(&f, buf[i as usize][j as usize]);
+                write_color(&mut bw, buf[i as usize][j as usize]);
             }
         }        
     }
@@ -199,7 +201,7 @@ impl Camera {
     }
 }
 
-pub fn write_color(mut f: &File, color: Vec3) {
+pub fn write_color(f: &mut BufWriter<File>, color: Vec3) {
     let r = color.x;
     let g = color.y;
     let b = color.z;
@@ -207,6 +209,8 @@ pub fn write_color(mut f: &File, color: Vec3) {
     let rbyte = (255.999 * r) as i32;
     let gbyte = (255.999 * g) as i32;
     let bbyte = (255.999 * b) as i32;
+
+    // Bufwriter here should make it faster.
 
     f.write(rbyte.to_string().as_bytes()); f.write(" ".as_bytes());
     f.write(gbyte.to_string().as_bytes()); f.write(" ".as_bytes());
