@@ -19,13 +19,16 @@ metallic material, as well as the shadows underneath each. I have implemented th
 of the animations below I have shown them being rotated around, however I want to also apply those materials
 to the triangle to see how it turns out. 
 
-Additionally, it is very slow to write to ppms, so perhaps I'd like to take into account some degree of 
-asynchronous raytracing, where on writes, it could jump to another raytracing tasks. Another possibility
-is to have several threads where each thread handles a subset of pixels in the image and async program those 
-threads. Not suspecting any sort of race conditions because nothing is being mutated within the scene, but
-who knows.
+On the multithreaded branch, I wrote a multithreaded version of this raytracer from scratch from
+````std::thread```` a bunch of Arc's (in replace of all the Rc's I had used). I think it bumped rendering speed up
+~30% from doing a couple of tests. I also buffered my data again so that multiple threads can, without accessing the
+same memory, mutate the final buffered image.
 
 Outside libs: ````File, Write, Rand.````
+
+#### TODO 😟:
+ - [ ] Use BufWriter in Rust to write to .ppm file as it seems the best way to do it [evidence](https://www.reddit.com/r/rust/comments/dogxk8/why_does_buffering_the_already_buffered_stdout/).
+ - [ ] Implement some degree of SIMD [(here)](https://bitshifter.github.io/2018/06/04/simd-path-tracing/) and [Intel Intrinsics](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#techs=SSE_ALL&ig_expand=10).
 
 ## Features
 ### 3d Vectors (Vec 3)
@@ -86,3 +89,4 @@ https://github.com/user-attachments/assets/aa0447b1-71fc-43d8-b13b-1f3824d31ab5
 
 ![Screenshot 2025-01-17 162626](https://github.com/user-attachments/assets/96f8bfc4-644b-4593-8b47-850d6c129266)
 
+7) On the multithreading branch, there is a working multithreaded version of this raytracer!
