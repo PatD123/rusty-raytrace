@@ -84,9 +84,12 @@ impl Camera {
             let angle = -deg2rad(i as f32);
             self.rotate_y(angle);
 
-            // We now have two pointers pointing to the same Camera
+            // We now have two pointers pointing to the same Camera.
             let cam = Arc::new(self.clone());
+            // World is also shared.
             let w = Arc::clone(&world);
+
+            // Render with new cloned camera.
             cam.render_frame(w, i);
 
             self.rotate_y(-angle);
@@ -95,15 +98,14 @@ impl Camera {
         }
     }
 
+    // Cam itself is shared so we use Arc on self.
     pub fn render_frame(self: Arc<Self>, world: Arc<World>, frame_id: i32) {
         // Render
 
-        // TODO
-        // Just try out some threading right here and then steadily build it up to tracing
-        // all the rays.
         let num_threads = 3;
         let mut handles: Vec<thread::JoinHandle<()>> = vec![];
 
+        // Arc for usage across threads. Mutex for Sync (mutating in multiple threads).
         let mut buf = Arc::new(Mutex::new(vec![vec![Vec3::ZERO; self.image_width as usize]; self.image_height as usize]));
 
         // Deploy all threads.
@@ -122,11 +124,13 @@ impl Camera {
                 (thread_i + 1) * cam.image_height / num_threads
             };
 
+            // Create the thread.
             let handle = thread::spawn(move || {
                 for i in start..end {
                     // println!("Scanlines remaining: {}", (cam.image_height as i32 - i));
                     let mut scnl: Vec<Vec3> = vec![];
                     for j in 0..cam.image_width {
+
                         // Used later to average for antialiasing
                         let mut total_pixel_color = Vec3::ZERO;
 
@@ -138,8 +142,7 @@ impl Camera {
 
                         total_pixel_color /= cam.samples_per_pixel as f32; 
                         
-                        // write_color(&f, &total_pixel_color);
-                        // write_buf[i as usize][j as usize] = total_pixel_color; 
+                        // Push the resulting color into the current scanline.
                         scnl.push(total_pixel_color);
                     }
 
@@ -149,6 +152,8 @@ impl Camera {
                     }
                 }
             });
+
+            // Have to join all threads later.
             handles.push(handle);
         }
 
