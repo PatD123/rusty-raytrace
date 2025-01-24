@@ -104,7 +104,7 @@ impl Camera {
     pub fn render_frame(self: Arc<Self>, world: Arc<World>, frame_id: i32) {
         // Render
 
-        let num_threads = 4;
+        let num_threads = 3;
         let mut handles: Vec<thread::JoinHandle<()>> = vec![];
 
         // Arc for usage across threads. Mutex for Sync (mutating in multiple threads).
@@ -181,31 +181,30 @@ impl Camera {
             // Each thread works on an individual scanline.
             let handle = thread::spawn(move || {
                 // Scanline # that this thread works on.
-                let i = recvr.lock().unwrap().recv().unwrap();
+                while let Ok(i) = recvr.lock().unwrap().recv() {
+                    let mut scnl: Vec<Vec3> = vec![];
+                    for j in 0..cam.image_width {
 
-                let mut scnl: Vec<Vec3> = vec![];
-                for j in 0..cam.image_width {
+                        // Used later to average for antialiasing
+                        let mut total_pixel_color = Vec3::ZERO;
 
-                    // Used later to average for antialiasing
-                    let mut total_pixel_color = Vec3::ZERO;
+                        for _ in 0..cam.samples_per_pixel {
+                            let r = cam.get_ray(i as f32, j as f32);
+                            let pixel_color = ray_color(&r, &w, MAX_DEPTH);
+                            total_pixel_color += pixel_color;
+                        }
 
-                    for _ in 0..cam.samples_per_pixel {
-                        let r = cam.get_ray(i as f32, j as f32);
-                        let pixel_color = ray_color(&r, &w, MAX_DEPTH);
-                        total_pixel_color += pixel_color;
+                        total_pixel_color /= cam.samples_per_pixel as f32; 
+                        
+                        // Push the resulting color into the current scanline.
+                        scnl.push(total_pixel_color);
                     }
 
-                    total_pixel_color /= cam.samples_per_pixel as f32; 
-                    
-                    // Push the resulting color into the current scanline.
-                    scnl.push(total_pixel_color);
+                    let mut b = write_buf.lock().unwrap();
+                    if let Some(r) = b.get_mut(i as usize) {
+                        *r = scnl;
+                    }
                 }
-
-                let mut b = write_buf.lock().unwrap();
-                if let Some(r) = b.get_mut(i as usize) {
-                    *r = scnl;
-                }
-
             });
 
             handles.push(handle);
@@ -214,6 +213,9 @@ impl Camera {
         for i in 0..self.image_height {
             tx.send(i).unwrap();
         }
+        
+        // Drop sender
+        drop(tx);
 
         for handle in handles {
             handle.join().unwrap();
