@@ -16,6 +16,7 @@ use std::io::Write;
 use rand::Rng;
 use std::thread;
 use std::sync::mpsc;
+use crossbeam::channel::unbounded;
 use std::sync::Arc;
 use std::sync::Mutex;
 
@@ -166,8 +167,8 @@ impl Camera {
 
         // So instead of chunkifying the buffer for these threads. We want to interlace
         // threads to enable more load balancing.
-        let (tx, rx) = mpsc::channel();
-        let rx = Arc::new(Mutex::new(rx));
+        let (tx, rx) = unbounded();
+        // let rx = Arc::new(Mutex::new(rx));
 
         for _ in 0..num_threads {
             // Make more references to shared data
@@ -176,12 +177,12 @@ impl Camera {
             let write_buf = Arc::clone(&buf);
 
             // Clone rx so all threads can recv work from channel
-            let recvr = Arc::clone(&rx);
+            let recvr = rx.clone();
 
             // Each thread works on an individual scanline.
             let handle = thread::spawn(move || {
                 // Scanline # that this thread works on.
-                while let Ok(i) = recvr.lock().unwrap().recv() {
+                while let Ok(i) = recvr.recv() {
                     let mut scnl: Vec<Vec3> = vec![];
                     for j in 0..cam.image_width {
 
