@@ -94,8 +94,6 @@ impl Camera {
             cam.render_frame(w, i);
 
             self.rotate_y(-angle);
-
-            break;
         }
     }
 
