@@ -104,65 +104,11 @@ impl Camera {
     pub fn render_frame(self: Arc<Self>, world: Arc<World>, frame_id: i32) {
         // Render
 
-        let num_threads = 3;
+        let num_threads = 4; // Equal to number of cores you have.
         let mut handles: Vec<thread::JoinHandle<()>> = vec![];
 
         // Arc for usage across threads. Mutex for Sync (mutating in multiple threads).
         let mut buf = Arc::new(Mutex::new(vec![vec![Vec3::ZERO; self.image_width as usize]; self.image_height as usize]));
-
-        // Deploy all threads.
-        // for thread_i in 0..num_threads {
-        //     // Make more references to shared data
-        //     let cam = Arc::clone(&self);
-        //     let w = Arc::clone(&world);
-        //     let write_buf = Arc::clone(&buf);
-
-        //     // Chunkify scanlines per thread
-        //     let start = thread_i * cam.image_height / num_threads;
-        //     let end = if thread_i == num_threads - 1 {
-        //         cam.image_height
-        //     }
-        //     else {
-        //         (thread_i + 1) * cam.image_height / num_threads
-        //     };
-
-        //     // Create the thread.
-        //     let handle = thread::spawn(move || {
-        //         for i in start..end {
-        //             // println!("Scanlines remaining: {}", (cam.image_height as i32 - i));
-        //             let mut scnl: Vec<Vec3> = vec![];
-        //             for j in 0..cam.image_width {
-
-        //                 // Used later to average for antialiasing
-        //                 let mut total_pixel_color = Vec3::ZERO;
-
-        //                 for _ in 0..cam.samples_per_pixel {
-        //                     let r = cam.get_ray(i as f32, j as f32);
-        //                     let pixel_color = ray_color(&r, &w, MAX_DEPTH);
-        //                     total_pixel_color += pixel_color;
-        //                 }
-
-        //                 total_pixel_color /= cam.samples_per_pixel as f32; 
-                        
-        //                 // Push the resulting color into the current scanline.
-        //                 scnl.push(total_pixel_color);
-        //             }
-
-        //             let mut b = write_buf.lock().unwrap();
-        //             if let Some(r) = b.get_mut(i as usize) {
-        //                 *r = scnl;
-        //             }
-        //         }
-        //     });
-
-        //     // Have to join all threads later.
-        //     handles.push(handle);
-        // }
-
-        // Join all threads.
-        // for handle in handles {
-        //     handle.join().unwrap();
-        // }
 
         // So instead of chunkifying the buffer for these threads. We want to interlace
         // threads to enable more load balancing.
