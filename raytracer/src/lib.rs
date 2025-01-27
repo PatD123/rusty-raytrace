@@ -15,6 +15,7 @@ use std::io::BufWriter;
 use std::io::Write;
 use rand::Rng;
 use std::thread;
+use crossbeam::channel;
 use std::sync::Arc;
 use std::sync::Mutex;
 
@@ -101,32 +102,30 @@ impl Camera {
     pub fn render_frame(self: Arc<Self>, world: Arc<World>, frame_id: i32) {
         // Render
 
-        let num_threads = 3;
+        let num_threads = 4; // Equal to number of cores you have.
         let mut handles: Vec<thread::JoinHandle<()>> = vec![];
 
         // Arc for usage across threads. Mutex for Sync (mutating in multiple threads).
         let mut buf = Arc::new(Mutex::new(vec![vec![Vec3::ZERO; self.image_width as usize]; self.image_height as usize]));
 
-        // Deploy all threads.
-        for thread_i in 0..num_threads {
+        // So instead of chunkifying the buffer for these threads. We want to interlace
+        // threads to enable more load balancing.
+        let (tx, rx) = channel::bounded(6);
+        // let rx = Arc::new(Mutex::new(rx));
+
+        for _ in 0..num_threads {
             // Make more references to shared data
             let cam = Arc::clone(&self);
             let w = Arc::clone(&world);
             let write_buf = Arc::clone(&buf);
 
-            // Chunkify scanlines per thread
-            let start = thread_i * cam.image_height / num_threads;
-            let end = if thread_i == num_threads - 1 {
-                cam.image_height
-            }
-            else {
-                (thread_i + 1) * cam.image_height / num_threads
-            };
+            // Clone rx so all threads can recv work from channel
+            let recvr = rx.clone();
 
-            // Create the thread.
+            // Each thread works on an individual scanline.
             let handle = thread::spawn(move || {
-                for i in start..end {
-                    // println!("Scanlines remaining: {}", (cam.image_height as i32 - i));
+                // Scanline # that this thread works on.
+                while let Ok(i) = recvr.recv() {
                     let mut scnl: Vec<Vec3> = vec![];
                     for j in 0..cam.image_width {
 
@@ -152,11 +151,16 @@ impl Camera {
                 }
             });
 
-            // Have to join all threads later.
             handles.push(handle);
         }
 
-        // Join all threads.
+        for i in 0..self.image_height {
+            tx.send(i).unwrap();
+        }
+        
+        // Drop sender
+        drop(tx);
+
         for handle in handles {
             handle.join().unwrap();
         }
