@@ -19,12 +19,10 @@ metallic material, as well as the shadows underneath each. I have implemented th
 of the animations below I have shown them being rotated around, however I want to also apply those materials
 to the triangle to see how it turns out. 
 
-On the multithreaded branch, I wrote a multithreaded version of this raytracer from scratch from
-````std::thread```` a bunch of Arc's (in replace of all the Rc's I had used). I think it bumped rendering speed up
-~30% from doing a couple of tests. I also buffered my data again so that multiple threads can, without accessing the
-same memory, mutate the final buffered image.
+On the interlaced_multithreading branch, it increases the speed by a ton. Changed from ```mpsc``` to ```crossbeam``` channels
+because it allows for multiple receivers (issue with mpsc). This enabled my program to use all 3 threads.
 
-Outside libs: ````File, Write, Rand.````
+Outside libs: ````File, Write, Rand, Crossbeam,````
 
 ## TODO 😟:
  - [x] Use BufWriter in Rust to write to .ppm file as it seems the best way to do it [evidence](https://www.reddit.com/r/rust/comments/dogxk8/why_does_buffering_the_already_buffered_stdout/).
