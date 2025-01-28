@@ -29,6 +29,7 @@ Outside libs: ````File, Write, Rand, Crossbeam,````
  - [x] Test current multithreading branch vs. Method where 3 threads interlace through the scanlines (non-chunks)
          ==> Make a Job Queue and have threads read off this channel to do work maybe? ✔️ **Improves time by 2x**
  - [ ] Implement some degree of SIMD [(here)](https://bitshifter.github.io/2018/06/04/simd-path-tracing/) and [Intel Intrinsics](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#techs=SSE_ALL&ig_expand=10).
+ - [ ] Reduce number of FLOPs (precompute some stuff for intersections).
 
 ## Features
 ### 3d Vectors (Vec 3)
