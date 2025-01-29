@@ -125,18 +125,18 @@ impl Hittable for Sphere {
     fn hit(&self, r: &Ray, tmin: f32, tmax: f32, rec: &mut HitRec) -> bool {
         let oc = self.center - r.origin();
         let a = vec3::dot(r.direction(), r.direction());
-        let b = -2.0 * vec3::dot(r.direction(), oc);
+        let h = vec3::dot(r.direction(), oc);
         let c = vec3::dot(oc, oc) - self.radius * self.radius;
-        let discriminant: f32 = b * b - 4.0 * a * c;
+        let discriminant: f32 = h * h - a * c;
         
         if discriminant < 0.0 {
             return false;
         }
 
         // Determining valid t roots from sphere intersection
-        let mut root = (-b - discriminant.sqrt()) / (2.0 * a);
+        let mut root = (h - discriminant.sqrt()) / a;
         if root < tmin || root >= tmax {
-            root = (-b + discriminant.sqrt()) / (2.0 * a);
+            root = (h + discriminant.sqrt()) / a;
             if root < tmin || root >= tmax {
                 return false;
             }
