@@ -30,6 +30,7 @@ Outside libs: ````File, Write, Rand, Crossbeam,````
          ==> Make a Job Queue and have threads read off this channel to do work maybe? ✔️ **Improves time by 2x**
  - [ ] Implement some degree of SIMD [(here)](https://bitshifter.github.io/2018/06/04/simd-path-tracing/) and [Intel Intrinsics](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#techs=SSE_ALL&ig_expand=10).
  - [x] Reduce number of FLOPs (precompute some stuff for intersections).
+ - [ ] Make generating random vectors faster.
 
 ## Features
 ### 3d Vectors (Vec 3)
