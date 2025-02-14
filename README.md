@@ -32,6 +32,7 @@ Outside libs: ````File, Write, Rand, Crossbeam,````
  - [x] Reduce number of FLOPs (precompute some stuff for intersections).
  - [ ] Make generating random vectors faster.
  - [ ] Add gaussians as an object
+ - [ ] Change from PPMs to PNGs.
 
 ## Features
 ### 3d Vectors (Vec 3)
